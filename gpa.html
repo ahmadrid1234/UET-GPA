@@ -1,0 +1,1995 @@
+<!DOCTYPE html>
+<html>
+<head>
+                <style></style>
+            </head>
+            <body>
+                
+
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UET Taxila — GPA &amp; CGPA Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --pri:#003366;--pri-l:#004d99;--pri-ll:#e8f0fe;
+  --acc:#0066cc;--bg:#F9FAFB;--card:#fff;
+  --tx:#111827;--tx2:#6b7280;--bdr:#e5e7eb;--bdr2:#f3f4f6;
+  --grn:#059669;--amb:#d97706;--red:#dc2626;
+  --r:12px;--rl:24px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--tx);line-height:1.55;min-height:100vh;-webkit-font-smoothing:antialiased}
+.app{max-width:920px;margin:0 auto;padding:32px 16px 64px}
+
+/* ---- HEADER ---- */
+.hdr{text-align:center;margin-bottom:28px}
+.hdr .badge{display:inline-flex;align-items:center;gap:6px;background:var(--pri);color:#fff;padding:5px 14px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:12px}
+.hdr .badge svg{width:14px;height:14px;flex-shrink:0}
+.hdr h1{font-size:clamp(22px,4vw,28px);font-weight:800;color:var(--pri);letter-spacing:-.5px}
+.hdr .sub{color:var(--tx2);font-size:14px;margin-top:3px}
+
+/* ---- CARD ---- */
+.crd{background:var(--card);border-radius:var(--rl);box-shadow:0 4px 6px -1px rgba(0,0,0,.07),0 10px 15px -3px rgba(0,0,0,.07),0 20px 25px -5px rgba(0,0,0,.04);overflow:hidden}
+
+/* ---- TABS ---- */
+.tabs{display:flex;padding:5px;margin:20px 24px 0;background:var(--bdr2);border-radius:10px;gap:4px}
+.tb{flex:1;padding:11px 16px;border:none;background:0 0;font-family:inherit;font-size:13px;font-weight:600;color:var(--tx2);cursor:pointer;border-radius:7px;transition:all .2s}
+.tb:hover{color:var(--tx)}
+.tb.on{background:#fff;color:var(--pri);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+/* ---- PANELS ---- */
+.pnl{display:none;padding:24px}
+.pnl.on{display:block}
+
+/* ---- FORM ---- */
+.ctrl{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.6px}
+select,input[type="text"],input[type="number"]{width:100%;padding:9px 12px;border:1.5px solid var(--bdr);border-radius:8px;font-family:inherit;font-size:13px;color:var(--tx);background:#fff;outline:0;transition:border-color .15s,box-shadow .15s}
+select:focus,input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,102,204,.12)}
+select{cursor:pointer;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7280'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+input[type="number"]{-moz-appearance:textfield}
+input[type="number"]::-webkit-inner-spin-button,input[type="number"]::-webkit-outer-spin-button{-webkit-appearance:none}
+
+/* ---- GRADE REF ---- */
+.gref{margin-bottom:18px}
+.gref-btn{border:none;background:0 0;font-family:inherit;font-size:12px;color:var(--acc);font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;padding:0}
+.gref-btn:hover{text-decoration:underline}
+.gref-btn .ar{transition:transform .2s;font-size:9px;display:inline-block}
+.gref-btn .ar.op{transform:rotate(90deg)}
+.gref-bd{display:none;margin-top:10px;background:var(--bdr2);border-radius:10px;padding:12px 14px}
+.gref-bd.op{display:block;animation:fi .2s}
+.gg{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.gc{text-align:center;padding:6px 4px;background:#fff;border-radius:6px;font-size:11px;color:var(--tx2)}
+.gc b{display:block;font-size:13px;color:var(--pri);margin-bottom:1px}
+
+@keyframes fi{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ---- SUBJECT TABLE ---- */
+.stitle{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.stitle h3{font-size:15px;font-weight:700}
+.stitle .cnt{font-size:12px;color:var(--tx2);background:var(--bdr2);padding:3px 10px;border-radius:100px;font-weight:600}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.thd{display:grid;grid-template-columns:32px 110px 1fr 70px 90px 56px 36px;gap:6px;padding:7px 10px;background:var(--bdr2);border-radius:8px;margin-bottom:4px;min-width:640px}
+.thd span{font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px}
+.sr{display:grid;grid-template-columns:32px 110px 1fr 70px 90px 56px 36px;gap:6px;padding:5px 10px;align-items:center;border-radius:8px;transition:background .15s;min-width:640px;animation:fi .25s}
+.sr:hover{background:#fafbfc}
+.sr .rn{font-size:12px;font-weight:600;color:var(--tx2);text-align:center}
+.sr .scode{font-size:11px;font-weight:700;color:var(--pri);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr input,.sr select{padding:7px 8px;font-size:12px}
+.sr input[type="number"]{text-align:center}
+.sr .cp{font-size:12px;font-weight:700;color:var(--pri);text-align:center;white-space:nowrap}
+.bx{width:28px;height:28px;border:none;background:0 0;color:#ccc;font-size:16px;cursor:pointer;border-radius:6px;transition:all .15s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bx:hover{background:#fef2f2;color:var(--red)}
+.ba{width:100%;padding:10px;margin-top:6px;border:2px dashed var(--bdr);background:0 0;font-family:inherit;font-size:13px;font-weight:600;color:var(--tx2);cursor:pointer;border-radius:10px;transition:all .2s}
+.ba:hover{border-color:var(--acc);color:var(--acc);background:rgba(0,102,204,.02)}
+
+/* ---- RESULT ---- */
+.res{margin-top:24px;padding:24px 28px;background:linear-gradient(135deg,var(--pri) 0%,var(--pri-l) 100%);border-radius:16px;color:#fff;position:relative;overflow:hidden}
+.res::before{content:'';position:absolute;top:-60px;right:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.06)}
+.res::after{content:'';position:absolute;bottom:-40px;left:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.04)}
+.res .inn{position:relative;z-index:1}
+.res .lbl{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.75;margin-bottom:6px}
+.res .std{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;background:rgba(255,255,255,.18);margin-bottom:10px}
+.res .gv{font-size:clamp(40px,8vw,54px);font-weight:800;line-height:1;letter-spacing:-2px;margin-bottom:18px}
+.res .dts{display:flex;gap:28px;flex-wrap:wrap}
+.res .dt{display:flex;flex-direction:column;gap:1px}
+.res .dtl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;opacity:.6}
+.res .dtv{font-size:17px;font-weight:700}
+
+/* ---- CGPA ROWS ---- */
+.chd{display:grid;grid-template-columns:1fr 110px 110px 36px;gap:10px;padding:7px 10px;background:var(--bdr2);border-radius:8px;margin-bottom:4px}
+.chd span{font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px}
+.cr{display:grid;grid-template-columns:1fr 110px 110px 36px;gap:10px;padding:6px 10px;align-items:center;border-radius:8px;transition:background .15s;animation:fi .25s}
+.cr:hover{background:#fafbfc}
+.cr input{padding:7px 8px;font-size:13px}
+
+/* ---- EXPORT ---- */
+.ebar{padding:0 24px 24px;display:flex;gap:10px;flex-wrap:wrap}
+.be{padding:9px 18px;border:1.5px solid var(--bdr);border-radius:8px;background:#fff;font-family:inherit;font-size:13px;font-weight:600;color:var(--tx);cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.be:hover{border-color:var(--pri);color:var(--pri);background:var(--pri-ll)}
+.be svg{width:15px;height:15px;flex-shrink:0}
+
+/* ---- FOOTER ---- */
+.ftr{text-align:center;padding:20px;font-size:12px;color:var(--tx2)}
+
+/* ---- RESPONSIVE ---- */
+@media(max-width:640px){
+  .app{padding:16px 8px 40px}
+  .ctrl{grid-template-columns:1fr}
+  .tabs{margin:16px 16px 0}
+  .pnl{padding:16px}
+  .gg{grid-template-columns:repeat(3,1fr)}
+  .res .dts{gap:16px}
+  .ebar{padding:0 16px 16px;flex-direction:column}
+  .be{width:100%;justify-content:center}
+  .chd,.cr{grid-template-columns:1fr 80px 80px 36px;gap:6px}
+}
+
+/* ---- MODAL ---- */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;animation:fi .15s}
+.modal-overlay.hidden{display:none}
+.modal{background:#fff;border-radius:var(--rl);box-shadow:0 25px 50px -12px rgba(0,0,0,.25);width:100%;max-width:560px;max-height:85vh;display:flex;flex-direction:column;overflow:hidden}
+.modal-hdr{padding:20px 24px 16px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-hdr h3{font-size:16px;font-weight:700;color:var(--pri)}
+.modal-close{width:32px;height:32px;border:none;background:0 0;font-size:20px;color:var(--tx2);cursor:pointer;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.modal-close:hover{background:var(--bdr2);color:var(--tx)}
+.modal-search-wrap{padding:14px 24px;border-bottom:1px solid var(--bdr);flex-shrink:0;position:relative}
+.modal-search-wrap svg{position:absolute;left:34px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--tx2);pointer-events:none}
+.modal-search{width:100%;padding:9px 12px 9px 36px;border:1.5px solid var(--bdr);border-radius:8px;font-family:inherit;font-size:13px;color:var(--tx);background:#fff;outline:0;transition:border-color .15s,box-shadow .15s}
+.modal-search:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,102,204,.12)}
+.modal-body{overflow-y:auto;flex:1;padding:10px 16px 16px}
+.modal-empty{text-align:center;padding:32px 0;color:var(--tx2);font-size:13px}
+.subgrp{margin-bottom:8px}
+.subgrp-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx2);padding:6px 8px 4px;display:block}
+.sub-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:background .15s}
+.sub-item:hover{background:var(--pri-ll)}
+.sub-item .si-code{font-size:11px;font-weight:700;color:var(--pri);min-width:80px;flex-shrink:0}
+.sub-item .si-name{font-size:13px;color:var(--tx);flex:1}
+.sub-item .si-ch{font-size:11px;color:var(--tx2);white-space:nowrap}
+.sub-item .si-add{width:24px;height:24px;border:none;background:var(--pri);color:#fff;border-radius:6px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.sub-item .si-add:hover{background:var(--pri-l)}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;flex-shrink:0}
+.btn-done{padding:9px 22px;background:var(--pri);color:#fff;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s}
+.btn-done:hover{background:var(--pri-l)}
+
+/* ---- PRINT ---- */
+@media print{
+  body{background:#fff}
+  .app{padding:0;max-width:none}
+  .crd{box-shadow:none;border-radius:0}
+  .tabs,.ctrl,.gref,.ba,.bx,.ebar,.ftr{display:none!important}
+  .pnl.on{display:block!important}
+  .res{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .sr{break-inside:avoid}
+  .hdr .badge{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+
+
+<div class="app">
+
+  <header class="hdr">
+    <div class="badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c0 2 4 3 6 3s6-1 6-3v-5"></path></svg>
+      UET Taxila
+    </div>
+    <h1>GPA &amp; CGPA Calculator</h1>
+    <p class="sub">University of Engineering &amp; Technology, Taxila — 2023 Grading Scale (4.0)</p>
+  </header>
+
+  <div class="crd">
+
+    <div class="tabs" role="tablist">
+      <button class="tb on" data-tab="sgpa" role="tab" aria-selected="true">Semester GPA</button>
+      <button class="tb" data-tab="cgpa" role="tab" aria-selected="false">Cumulative GPA</button>
+    </div>
+
+    <!-- ========== SGPA ========== -->
+    <div id="sgpa-pnl" class="pnl on" role="tabpanel">
+      <div class="ctrl">
+        <div class="fg">
+          <label for="dsel">Department</label>
+          <select id="dsel" aria-label="Department"><option value="">— Custom —</option><option value="Computer Engineering (BSc)" selected="">Computer Engineering (BSc)</option></select>
+        </div>
+        <div class="fg">
+          <label for="ssel">Semester</label>
+          <select id="ssel" aria-label="Semester"><option value="1">Semester 1</option><option value="2">Semester 2</option></select>
+        </div>
+      </div>
+
+      <div class="gref">
+        <button class="gref-btn" id="grToggle" type="button" aria-expanded="false"><span class="ar" id="grArrow">▶</span> View Grading Scale</button>
+        <div class="gref-bd" id="grBody"><div class="gg"><div class="gc"><b>A</b>4.00</div><div class="gc"><b>A-</b>3.67</div><div class="gc"><b>B+</b>3.33</div><div class="gc"><b>B</b>3.00</div><div class="gc"><b>B-</b>2.67</div><div class="gc"><b>C+</b>2.33</div><div class="gc"><b>C</b>2.00</div><div class="gc"><b>C-</b>1.67</div><div class="gc"><b>D</b>1.00</div><div class="gc"><b>F</b>0.00</div></div></div>
+      </div>
+
+      <div class="stitle"><h3>Subjects</h3><span class="cnt" id="sCnt">9 subjects</span></div>
+      <div class="tw">
+        <div class="thd"><span>#</span><span>Code</span><span>Subject Name</span><span>CH</span><span>Grade</span><span>CP</span><span></span></div>
+        <div id="sCtr"><div class="sr" data-i="0">
+      <span class="rn">1</span>
+      <input type="text" class="sn" value="CP-101 — Information and Communication Technologies" placeholder="Subject name" aria-label="Subject name">
+      <input type="number" class="sc" value="2" min="0" step="1" placeholder="CH" aria-label="Credit hours">
+      <select class="sg" aria-label="Grade"><option value="A" selected="">A (4.00)</option><option value="A-">A- (3.67)</option><option value="B+">B+ (3.33)</option><option value="B">B (3.00)</option><option value="B-">B- (2.67)</option><option value="C+">C+ (2.33)</option><option value="C">C (2.00)</option><option value="C-">C- (1.67)</option><option value="D">D (1.00)</option><option value="F">F (0.00)</option></select>
+      <span class="qp">8.0</span>
+      <button class="bx" type="button" title="Remove subject" aria-label="Remove subject">×</button>
+    </div><div class="sr" data-i="1">
+      <span class="rn">2</span>
+      <input type="text" class="sn" value="CP-101-L — Information and Communication Technologies Lab" placeholder="Subject name" aria-label="Subject name">
+      <input type="number" class="sc" value="1" min="0" step="1" placeholder="CH" aria-label="Credit hours">
+      <select class="sg" aria-label="Grade"><option value="A" selected="">A (4.00)</option><option value="A-">A- (3.67)</option><option value="B+">B+ (3.33)</option><option value="B">B (3.00)</option><option value="B-">B- (2.67)</option><option value="C+">C+ (2.33)</option><option value="C">C (2.00)</option><option value="C-">C- (1.67)</option><option value="D">D (1.00)</option><option value="F">F (0.00)</option></select>
+      <span class="qp">4.0</span>
+      <button class="bx" type="button" title="Remove subject" aria-label="Remove subject">×</button>
+    </div><div class="sr" data-i="2">
+      <span class="rn">3</span>
+      <input type="text" class="sn" value="CP-102 — Circuit Analysis" placeholder="Subject name" aria-label="Subject name">
+      <input type="number" class="sc" value="3" min="0" step="1" placeholder="CH" aria-label="Credit hours">
+      <select class="sg" aria-label="Grade"><option value="A" selected="">A (4.00)</option><option value="A-">A- (3.67)</option><option value="B+">B+ (3.33)</option><option value="B">B (3.00)</option><option value="B-">B- (2.67)</option><option value="C+">C+ (2.33)</option><option value="C">C (2.00)</option><option value="C-">C- (1.67)</option><option value="D">D (1.00)</option><option value="F">F (0.00)</option></select>
+      <span class="qp">12.0</span>
+      <button class="bx" type="button" title="Remove subject" aria-label="Remove subject">×</button>
+    </div><div class="sr" data-i="3">
+      <span class="rn">4</span>
+      <input type="text" class="sn" value="CP-102-L — Circuit Analysis Lab" placeholder="Subject name" aria-label="Subject name">
+      <input type="number" class="sc" value="1" min="0" step="1" placeholder="CH" aria-label="Credit hours">
+      <select class="sg" aria-label="Grade"><option value="A" selected="">A (4.00)</option><option value="A-">A- (3.67)</option><option value="B+">B+ (3.33)</option><option value="B">B (3.00)</option><option value="B-">B- (2.67)</option><option value="C+">C+ (2.33)</option><option value="C">C (2.00)</option><option value="C-">C- (1.67)</option><option value="D">D (1.00)</option><option value="F">F (0.00)</option></select>
+      <span class="qp">4.0</span>
+      <button class="bx" type="button" title="Remove subject" aria-label="Remove subject">×</button>
+    </div><div class="sr" data-i="4">
+      <span class="rn">5</span>
+      <input type="text" class="sn" value="NS-103 — Applied Physics" placeholder="Subject name" aria-label="Subject name">
+      <input type="number" class="sc" value="3" min="0" step="1" placeholder="CH" aria-label="Credit hours">
+      <select class="sg" aria-label="Grade"><option value="A" selected="">A (4.00)</option><option value="A-">A- (3.67)</option><option value="B+">B+ (3.33)</option><option value="B">B (3.00)</option><option value="B-">B- (2.67)</option><option value="C+">C+ (2.33)</option><option value="C">C (2.00)</option><option value="C-">C- (1.67)</option><option value="D">D (1.00)</option><option value="F">F (0.00)</option></select>
+      <span class="qp">12.0</span>
+      <button class="bx" type="button" title="Remove subject" aria-label="Remove subject">×</button>
+    </div><div class="sr" data-i="5">
+      <span class="rn">6</span>
+      <input type="text" class="sn" value="NS-103-L — Applied Physics Lab" placeholder="Subject name" aria-label="Subject name">
+      <input type="number" class="sc" value="1" min="0" step="1" placeholder="CH" aria-label="Credit hours">
+      <select class="sg" aria-label="Grade"><option value="A" selected="">A (4.00)</option><option value="A-">A- (3.67)</option><option value="B+">B+ (3.33)</option><option value="B">B (3.00)</option><option value="B-">B- (2.67)</option><option value="C+">C+ (2.33)</option><option value="C">C (2.00)</option><option value="C-">C- (1.67)</option><option value="D">D (1.00)</option><option value="F">F (0.00)</option></select>
+      <span class="qp">4.0</span>
+      <button class="bx" type="button" title="Remove subject" aria-label="Remove subject">×</button>
+    </div><div class="sr" data-i="6">
+      <span class="rn">7</span>
+      <input type="text" class="sn" value="MA-104 — Calculus &amp; Analytical Geometry" placeholder="Subject name" aria-label="Subject name">
+      <input type="number" class="sc" value="3" min="0" step="1" placeholder="CH" aria-label="Credit hours">
+      <select class="sg" aria-label="Grade"><option value="A" selected="">A (4.00)</option><option value="A-">A- (3.67)</option><option value="B+">B+ (3.33)</option><option value="B">B (3.00)</option><option value="B-">B- (2.67)</option><option value="C+">C+ (2.33)</option><option value="C">C (2.00)</option><option value="C-">C- (1.67)</option><option value="D">D (1.00)</option><option value="F">F (0.00)</option></select>
+      <span class="qp">12.0</span>
+      <button class="bx" type="button" title="Remove subject" aria-label="Remove subject">×</button>
+    </div><div class="sr" data-i="7">
+      <span class="rn">8</span>
+      <input type="text" class="sn" value="HU-105 — Functional English" placeholder="Subject name" aria-label="Subject name">
+      <input type="number" class="sc" value="3" min="0" step="1" placeholder="CH" aria-label="Credit hours">
+      <select class="sg" aria-label="Grade"><option value="A" selected="">A (4.00)</option><option value="A-">A- (3.67)</option><option value="B+">B+ (3.33)</option><option value="B">B (3.00)</option><option value="B-">B- (2.67)</option><option value="C+">C+ (2.33)</option><option value="C">C (2.00)</option><option value="C-">C- (1.67)</option><option value="D">D (1.00)</option><option value="F">F (0.00)</option></select>
+      <span class="qp">12.0</span>
+      <button class="bx" type="button" title="Remove subject" aria-label="Remove subject">×</button>
+    </div><div class="sr" data-i="8">
+      <span class="rn">9</span>
+      <input type="text" class="sn" value="QT-101 — Quran Translation (Maniyati)" placeholder="Subject name" aria-label="Subject name">
+      <input type="number" class="sc" value="1" min="0" step="1" placeholder="CH" aria-label="Credit hours">
+      <select class="sg" aria-label="Grade"><option value="A" selected="">A (4.00)</option><option value="A-">A- (3.67)</option><option value="B+">B+ (3.33)</option><option value="B">B (3.00)</option><option value="B-">B- (2.67)</option><option value="C+">C+ (2.33)</option><option value="C">C (2.00)</option><option value="C-">C- (1.67)</option><option value="D">D (1.00)</option><option value="F">F (0.00)</option></select>
+      <span class="qp">4.0</span>
+      <button class="bx" type="button" title="Remove subject" aria-label="Remove subject">×</button>
+    </div></div>
+      </div>
+      <button class="ba" id="bAddS" type="button">+ Add Subject</button>
+
+      <div class="res" id="sgRes">
+        <div class="inn">
+          <div class="lbl">Semester GPA</div>
+          <div class="std" id="sgStd">Outstanding</div>
+          <div class="gv" id="sgVal">4.00</div>
+          <div class="dts">
+            <div class="dt"><span class="dtl">Credit Hours</span><span class="dtv" id="sgCH">18</span></div>
+            <div class="dt"><span class="dtl">Quality Points</span><span class="dtv" id="sgQP">72.00</span></div>
+            <div class="dt"><span class="dtl">Subjects</span><span class="dtv" id="sgN">9</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== CGPA ========== -->
+    <div id="cgpa-pnl" class="pnl" role="tabpanel">
+      <p style="font-size:13px;color:var(--tx2);margin-bottom:16px">Enter each semester's SGPA and total credit hours to compute your Cumulative GPA.</p>
+      <div class="stitle"><h3>Semesters</h3><span class="cnt" id="cCnt">2 semesters</span></div>
+      <div class="chd"><span>Semester</span><span>SGPA</span><span>Credit Hours</span><span></span></div>
+      <div id="cCtr"><div class="cr" data-i="0">
+    <input type="text" class="cl" value="Semester 1" placeholder="Semester label" aria-label="Semester label">
+    <input type="number" class="cs" value="" min="0" max="4" step="0.01" placeholder="SGPA" aria-label="SGPA">
+    <input type="number" class="cc" value="" min="0" step="1" placeholder="Credit Hours" aria-label="Credit hours">
+    <button class="bx" type="button" title="Remove semester" aria-label="Remove semester">×</button>
+  </div><div class="cr" data-i="1">
+    <input type="text" class="cl" value="Semester 2" placeholder="Semester label" aria-label="Semester label">
+    <input type="number" class="cs" value="" min="0" max="4" step="0.01" placeholder="SGPA" aria-label="SGPA">
+    <input type="number" class="cc" value="" min="0" step="1" placeholder="Credit Hours" aria-label="Credit hours">
+    <button class="bx" type="button" title="Remove semester" aria-label="Remove semester">×</button>
+  </div></div>
+      <button class="ba" id="bAddC" type="button">+ Add Semester</button>
+
+      <div class="res" id="cgRes">
+        <div class="inn">
+          <div class="lbl">Cumulative GPA</div>
+          <div class="std" id="cgStd">—</div>
+          <div class="gv" id="cgVal">0.00</div>
+          <div class="dts">
+            <div class="dt"><span class="dtl">Total Credit Hours</span><span class="dtv" id="cgCH">0</span></div>
+            <div class="dt"><span class="dtl">Total Quality Points</span><span class="dtv" id="cgQP">0.00</span></div>
+            <div class="dt"><span class="dtl">Semesters</span><span class="dtv" id="cgN">2</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ebar">
+      <button class="be" id="bPNG" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg>
+        Download PNG
+      </button>
+      <button class="be" id="bPDF" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"></path></svg>
+        Print / Save PDF
+      </button>
+    </div>
+
+  </div>
+
+  <div class="ftr">Built for UET Taxila students · 4.0 GPA Scale · © 2024</div>
+</div>
+
+<!-- ========== ADD SUBJECT MODAL ========== -->
+<div class="modal-overlay hidden" id="addSubModal" role="dialog" aria-modal="true" aria-label="Add Subject">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3>Add Subject</h3>
+      <button class="modal-close" id="modalClose" aria-label="Close">×</button>
+    </div>
+    <div class="modal-search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" class="modal-search" id="subSearch" placeholder="Search by course code or name…" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="modal-body" id="subList"></div>
+    <div class="modal-footer">
+      <button class="btn-done" id="modalDone">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   DATA
+   ================================================================ */
+const GRADES=[
+  {l:'A', p:4.00},{l:'A-',p:3.67},{l:'B+',p:3.33},{l:'B', p:3.00},
+  {l:'B-',p:2.67},{l:'C+',p:2.33},{l:'C', p:2.00},{l:'C-',p:1.67},
+  {l:'D', p:1.00},{l:'F', p:0.00}
+];
+
+const DEPTS={
+'Civil Engineering (BSc)':{
+  semesters:{
+    '1':[
+      {c:'CE-101',n:'Engineering Drawing',ch:1,t:'Theory'},
+      {c:'CE-101-L',n:'Engineering Drawing Lab',ch:2,t:'Lab'},
+      {c:'NS-102',n:'Applied Mechanics',ch:2,t:'Theory'},
+      {c:'NS-102-L',n:'Applied Mechanics Lab',ch:1,t:'Lab'},
+      {c:'MD-103',n:'Applied Geology',ch:2,t:'Theory'},
+      {c:'CE-104',n:'Engineering Surveying',ch:2,t:'Theory'},
+      {c:'CE-104-L',n:'Engineering Surveying Lab',ch:1,t:'Lab'},
+      {c:'NS-105',n:'Applied Calculus',ch:3,t:'Theory'},
+      {c:'HU-106',n:'Islamic Studies/Ethics',ch:2,t:'Theory'},
+    ],
+    '2':[
+      {c:'CE-107',n:'Advanced Engineering Surveying',ch:2,t:'Theory'},
+      {c:'CE-107-L',n:'Advanced Engineering Surveying Lab',ch:1,t:'Lab'},
+      {c:'CE-108',n:'Civil Engineering Materials',ch:2,t:'Theory'},
+      {c:'CE-108-L',n:'Civil Engineering Materials Lab',ch:1,t:'Lab'},
+      {c:'HU-109',n:'Professional Ethics and Humanities',ch:2,t:'Theory'},
+      {c:'NS-110',n:'Differential Equations',ch:3,t:'Theory'},
+      {c:'HU-111',n:'Ideology and Constitution of Pakistan',ch:2,t:'Theory'},
+      {c:'HU-112',n:'Functional English',ch:3,t:'Theory'},
+    ],
+    '3':[
+      {c:'CE-201',n:'Fluid Mechanics',ch:2,t:'Theory'},
+      {c:'CE-201-L',n:'Fluid Mechanics Lab',ch:1,t:'Lab'},
+      {c:'CE-202',n:'Properties of Concrete',ch:2,t:'Theory'},
+      {c:'CE-202-L',n:'Properties of Concrete Lab',ch:1,t:'Lab'},
+      {c:'NS-203',n:'Numerical Analysis',ch:3,t:'Theory'},
+      {c:'HU-204',n:'Computer Programming',ch:1,t:'Theory'},
+      {c:'HU-204-L',n:'Computer Programming Lab',ch:1,t:'Lab'},
+      {c:'HU-205',n:'Hazards and Disaster Management',ch:2,t:'Theory'},
+      {c:'CE-206',n:'Geoinformatics',ch:3,t:'Theory'},
+      {c:'MS-207',n:'Entrepreneurship and Leadership',ch:2,t:'Theory'},
+    ],
+    '4':[
+      {c:'CE-208',n:'Structural Analysis-I',ch:3,t:'Theory'},
+      {c:'CE-209',n:'Mechanics of Solids-I',ch:2,t:'Theory'},
+      {c:'CE-209-L',n:'Mechanics of Solids-I Lab',ch:1,t:'Lab'},
+      {c:'MD-210',n:'Architecture and Town Planning',ch:3,t:'Theory'},
+      {c:'CE-211',n:'Drawing, Estimation and Cost Analysis',ch:2,t:'Theory'},
+      {c:'CE-211-L',n:'Drawing, Estimation and Cost Analysis Lab',ch:1,t:'Lab'},
+      {c:'NS-212',n:'Probability and Statistics',ch:3,t:'Theory'},
+      {c:'HU-213',n:'Expository Writing',ch:3,t:'Theory'},
+    ],
+    '5':[
+      {c:'CE-301',n:'Structural Analysis-II',ch:3,t:'Theory'},
+      {c:'CE-302',n:'Mechanics of Solids-II',ch:2,t:'Theory'},
+      {c:'CE-302-L',n:'Mechanics of Solids-II Lab',ch:1,t:'Lab'},
+      {c:'MS-303',n:'Construction Project Management',ch:2,t:'Theory'},
+      {c:'CE-304',n:'Engineering Hydrology',ch:2,t:'Theory'},
+      {c:'CE-304-L',n:'Engineering Hydrology Lab',ch:1,t:'Lab'},
+      {c:'CE-305',n:'AI and Data Science',ch:3,t:'Theory'},
+      {c:'CE-306',n:'Soil Mechanics',ch:2,t:'Theory'},
+      {c:'CE-306-L',n:'Soil Mechanics Lab',ch:1,t:'Lab'},
+    ],
+    '6':[
+      {c:'CE-307',n:'Reinforced Concrete Design-I',ch:3,t:'Theory'},
+      {c:'CE-308',n:'Design of Steel Structures',ch:2,t:'Theory'},
+      {c:'CE-309',n:'Advanced Fluid Mechanics',ch:2,t:'Theory'},
+      {c:'CE-309-L',n:'Advanced Fluid Mechanics Lab',ch:1,t:'Lab'},
+      {c:'CE-310',n:'Highway and Traffic Engineering',ch:2,t:'Theory'},
+      {c:'HU-311',n:'Modelling and Simulation',ch:2,t:'Theory'},
+      {c:'HU-311-L',n:'Modelling and Simulation Lab',ch:1,t:'Lab'},
+      {c:'CE-312',n:'Geotechnical Engineering',ch:3,t:'Theory'},
+      {c:'CE-312-L',n:'Geotechnical Engineering Lab',ch:1,t:'Lab'},
+    ],
+    '7':[
+      {c:'CE-401',n:'Environmental Engineering-I',ch:2,t:'Theory'},
+      {c:'CE-402',n:'Reinforced Concrete Design-II',ch:3,t:'Theory'},
+      {c:'CE-402-L',n:'Reinforced Concrete Design-II Lab',ch:1,t:'Lab'},
+      {c:'CE-403',n:'Hydraulic Engineering',ch:2,t:'Theory'},
+      {c:'CE-403-L',n:'Hydraulic Engineering Lab',ch:1,t:'Lab'},
+      {c:'CE-404',n:'Pavement Analysis and Design',ch:2,t:'Theory'},
+      {c:'CE-404-L',n:'Pavement Analysis and Design Lab',ch:1,t:'Lab'},
+      {c:'CE-405',n:'Foundation Engineering',ch:2,t:'Theory'},
+      {c:'CE-405-L',n:'Foundation Engineering Lab',ch:1,t:'Lab'},
+      {c:'CE-406A-L',n:'Project Phase A Lab',ch:3,t:'Lab'},
+    ],
+    '8':[
+      {c:'CE-407',n:'Irrigation Engineering',ch:2,t:'Theory'},
+      {c:'CE-408',n:'Analysis and Design of Structures',ch:2,t:'Theory'},
+      {c:'CE-408-L',n:'Analysis and Design of Structures Lab',ch:1,t:'Lab'},
+      {c:'CE-409',n:'Environmental Engineering-II',ch:2,t:'Theory'},
+      {c:'CE-409-L',n:'Environmental Engineering-II Lab',ch:1,t:'Lab'},
+      {c:'CE-410',n:'Structural Engineering',ch:2,t:'Theory'},
+      {c:'MD-411',n:'Occupational Health and Safety',ch:1,t:'Theory'},
+      {c:'CE-4XX',n:'Depth Elective',ch:2,t:'Theory'},
+      {c:'CE-406B-L',n:'Project Phase B Lab',ch:3,t:'Lab'},
+    ],
+  }
+},
+'Environmental Engineering (BSc)':{
+  semesters:{
+    '1':[
+      {c:'EN-111',n:'Introduction to Environmental Engineering',ch:3,t:'Theory'},
+      {c:'NS-112',n:'Environmental Chemistry',ch:2,t:'Theory'},
+      {c:'NS-112-L',n:'Environmental Chemistry Lab',ch:1,t:'Lab'},
+      {c:'MA-113',n:'Engineering Calculus',ch:3,t:'Theory'},
+      {c:'CE-114',n:'Engineering Drawing',ch:1,t:'Theory'},
+      {c:'CE-114-L',n:'Engineering Drawing Lab',ch:2,t:'Lab'},
+      {c:'HU-115',n:'Applications of ICT',ch:2,t:'Theory'},
+      {c:'HU-115-L',n:'Applications of ICT Lab',ch:1,t:'Lab'},
+      {c:'HU-116',n:'Islamic Studies/Ethics',ch:2,t:'Theory'},
+    ],
+    '2':[
+      {c:'EN-121',n:'Introduction to Microbiology',ch:3,t:'Theory'},
+      {c:'CE-122',n:'Engineering Mechanics',ch:2,t:'Theory'},
+      {c:'CE-122-L',n:'Engineering Mechanics Lab',ch:1,t:'Lab'},
+      {c:'CE-123',n:'Surveying and Leveling',ch:2,t:'Theory'},
+      {c:'CE-123-L',n:'Surveying and Leveling Lab',ch:1,t:'Lab'},
+      {c:'MA-124',n:'Linear Algebra and Differential Equations',ch:3,t:'Theory'},
+      {c:'HU-125',n:'Functional English',ch:3,t:'Theory'},
+      {c:'EE-126',n:'Electrical Technology',ch:2,t:'Theory'},
+      {c:'EE-126-L',n:'Electrical Technology Lab',ch:1,t:'Lab'},
+    ],
+    '3':[
+      {c:'EN-211',n:'Environmental Microbiology',ch:2,t:'Theory'},
+      {c:'EN-211-L',n:'Environmental Microbiology Lab',ch:1,t:'Lab'},
+      {c:'CE-212',n:'Hydrology and Water Resource Management',ch:3,t:'Theory'},
+      {c:'CE-213',n:'Soil Mechanics',ch:2,t:'Theory'},
+      {c:'CE-213-L',n:'Soil Mechanics Lab',ch:1,t:'Lab'},
+      {c:'HU-214',n:'Environment and Human Interaction',ch:2,t:'Theory'},
+      {c:'MA-215',n:'Numerical Analysis',ch:3,t:'Theory'},
+      {c:'HU-216',n:'Ideology and Constitution of Pakistan',ch:2,t:'Theory'},
+    ],
+    '4':[
+      {c:'EN-221',n:'Environmental Engineering Lab Techniques',ch:1,t:'Theory'},
+      {c:'EN-221-L',n:'Environmental Engineering Lab Techniques Lab',ch:2,t:'Lab'},
+      {c:'EN-222',n:'Environmental Laws and Policies',ch:3,t:'Theory'},
+      {c:'HU-223',n:'Expository Writing',ch:3,t:'Theory'},
+      {c:'MD-224',n:'Thermodynamics',ch:2,t:'Theory'},
+      {c:'MD-224-L',n:'Thermodynamics Lab',ch:1,t:'Lab'},
+      {c:'MA-225',n:'Probability and Statistics',ch:3,t:'Theory'},
+      {c:'CS-226',n:'Intro to GIS and Remote Sensing',ch:2,t:'Theory'},
+      {c:'CS-226-L',n:'Intro to GIS and Remote Sensing Lab',ch:1,t:'Lab'},
+    ],
+    '5':[
+      {c:'EN-311',n:'Water Treatment and Design',ch:3,t:'Theory'},
+      {c:'EN-311-L',n:'Water Treatment and Design Lab',ch:1,t:'Lab'},
+      {c:'EN-312',n:'Cleaner Production Techniques',ch:3,t:'Theory'},
+      {c:'HU-313',n:'Comparative Religions',ch:2,t:'Theory'},
+      {c:'CE-314',n:'Fluid Mechanics',ch:2,t:'Theory'},
+      {c:'CE-314-L',n:'Fluid Mechanics Lab',ch:1,t:'Lab'},
+      {c:'CS-315',n:'Applied GIS and Remote Sensing',ch:2,t:'Theory'},
+      {c:'CS-315-L',n:'Applied GIS and Remote Sensing Lab',ch:1,t:'Lab'},
+      {c:'MS-316',n:'Project Planning and Management',ch:2,t:'Theory'},
+    ],
+    '6':[
+      {c:'EN-321',n:'Water Supply and Sewerage Network Design',ch:2,t:'Theory'},
+      {c:'EN-321-L',n:'Water Supply and Sewerage Network Design Lab',ch:2,t:'Lab'},
+      {c:'EN-322',n:'Environmental Impact Assessment and Management',ch:3,t:'Theory'},
+      {c:'EN-323',n:'Solid and Hazardous Waste Management',ch:3,t:'Theory'},
+      {c:'EN-324',n:'Environmental Impact of Transportation Systems',ch:2,t:'Theory'},
+      {c:'HU-325',n:'Engineering Economics',ch:2,t:'Theory'},
+      {c:'MS-326',n:'Entrepreneurship',ch:2,t:'Theory'},
+    ],
+    '7':[
+      {c:'EN-411',n:'Environmental Modeling',ch:3,t:'Theory'},
+      {c:'EN-412',n:'Wastewater Treatment and Design',ch:3,t:'Theory'},
+      {c:'EN-412-L',n:'Wastewater Treatment and Design Lab',ch:1,t:'Lab'},
+      {c:'EN-413',n:'Climate Change Adaptation and Mitigation',ch:3,t:'Theory'},
+      {c:'MD-414',n:'Occupational Health and Safety',ch:3,t:'Theory'},
+      {c:'HU-415',n:'Civics and Community Engagement',ch:2,t:'Theory'},
+      {c:'EN-416-L',n:'Final Year Design Project-I Lab',ch:3,t:'Lab'},
+    ],
+    '8':[
+      {c:'EN-421',n:'Industrial Waste Management',ch:3,t:'Theory'},
+      {c:'EN-422',n:'Air and Noise Pollution Control',ch:3,t:'Theory'},
+      {c:'EN-422-L',n:'Air and Noise Pollution Control Lab',ch:1,t:'Lab'},
+      {c:'EN-XXX',n:'Depth Elective',ch:2,t:'Theory'},
+      {c:'ME-423',n:'Renewable Energy Resources',ch:2,t:'Theory'},
+      {c:'HU-425',n:'Professional Ethics',ch:2,t:'Theory'},
+      {c:'EN-426-L',n:'Final Year Design Project-II Lab',ch:3,t:'Lab'},
+    ],
+  }
+},
+'Electrical Engineering (BSc)':{
+  semesters:{
+    '1':[
+      {c:'EE-111',n:'Linear Circuit Analysis',ch:3,t:'Theory'},
+      {c:'EE-111-L',n:'Linear Circuit Analysis Lab',ch:1,t:'Lab'},
+      {c:'EE-112-L',n:'Workshop Practice Lab',ch:1,t:'Lab'},
+      {c:'NS-113',n:'Applied Physics',ch:3,t:'Theory'},
+      {c:'NS-114',n:'Calculus & Analytical Geometry',ch:3,t:'Theory'},
+      {c:'HU-115',n:'Functional English',ch:3,t:'Theory'},
+      {c:'HU-116',n:'Islamic Studies',ch:2,t:'Theory'},
+    ],
+    '2':[
+      {c:'EE-121',n:'Electronic Devices & Circuits',ch:3,t:'Theory'},
+      {c:'EE-121-L',n:'Electronic Devices & Circuits Lab',ch:1,t:'Lab'},
+      {c:'CS-122',n:'Object Oriented Programming',ch:3,t:'Theory'},
+      {c:'CS-122-L',n:'Object Oriented Programming Lab',ch:1,t:'Lab'},
+      {c:'NS-123',n:'Differential Equations',ch:3,t:'Theory'},
+      {c:'HU-124',n:'Ideology and Constitution of Pakistan',ch:2,t:'Theory'},
+      {c:'MDE-125',n:'Occupational Health & Safety',ch:1,t:'Theory'},
+      {c:'MDE-126',n:'MDE Elective-I',ch:2,t:'Theory'},
+      {c:'MDE-126-L',n:'MDE Elective-I Lab',ch:1,t:'Lab'},
+    ],
+    '3':[
+      {c:'EE-211',n:'Electrical Machines',ch:3,t:'Theory'},
+      {c:'EE-211-L',n:'Electrical Machines Lab',ch:1,t:'Lab'},
+      {c:'EE-212',n:'Digital Logic Design',ch:3,t:'Theory'},
+      {c:'EE-212-L',n:'Digital Logic Design Lab',ch:1,t:'Lab'},
+      {c:'EE-213-L',n:'Engineering Drawing Lab',ch:1,t:'Lab'},
+      {c:'NS-214',n:'Complex Variables & Transforms',ch:3,t:'Theory'},
+      {c:'HU-215',n:'Civics and Community Engagement',ch:2,t:'Theory'},
+      {c:'MDE-216',n:'MDE Elective-II',ch:2,t:'Theory'},
+    ],
+    '4':[
+      {c:'EE-221',n:'Electrical Network Analysis',ch:3,t:'Theory'},
+      {c:'EE-221-L',n:'Electrical Network Analysis Lab',ch:1,t:'Lab'},
+      {c:'EE-222',n:'Microprocessors & Microcontrollers',ch:3,t:'Theory'},
+      {c:'EE-222-L',n:'Microprocessors & Microcontrollers Lab',ch:1,t:'Lab'},
+      {c:'EE-223',n:'Signals & Systems',ch:3,t:'Theory'},
+      {c:'EE-223-L',n:'Signals & Systems Lab',ch:1,t:'Lab'},
+      {c:'EE-224',n:'Probability Methods in Engineering',ch:2,t:'Theory'},
+      {c:'NS-225',n:'Linear Algebra',ch:3,t:'Theory'},
+    ],
+    '5':[
+      {c:'EE-311',n:'Power Transmission & Distribution',ch:3,t:'Theory'},
+      {c:'EE-311-L',n:'Power Transmission & Distribution Lab',ch:1,t:'Lab'},
+      {c:'EE-312',n:'Digital Signal Processing',ch:3,t:'Theory'},
+      {c:'EE-312-L',n:'Digital Signal Processing Lab',ch:1,t:'Lab'},
+      {c:'EE-313',n:'Electromagnetic Field Theory',ch:3,t:'Theory'},
+      {c:'CS-314',n:'Computing Elective I',ch:3,t:'Theory'},
+      {c:'CS-314-L',n:'Computing Elective I Lab',ch:1,t:'Lab'},
+      {c:'NS-315',n:'Natural Science Elective',ch:3,t:'Theory'},
+    ],
+    '6':[
+      {c:'EE-321',n:'Linear Control Systems',ch:3,t:'Theory'},
+      {c:'EE-321-L',n:'Linear Control Systems Lab',ch:1,t:'Lab'},
+      {c:'MS-322',n:'Project Management',ch:2,t:'Theory'},
+      {c:'HU-323',n:'Expository Writing',ch:3,t:'Theory'},
+      {c:'HU-324',n:'Social Science Elective',ch:2,t:'Theory'},
+      {c:'EE-32A',n:'Depth Elective (Core) I',ch:3,t:'Theory'},
+      {c:'EE-32A-L',n:'Depth Elective (Core) I Lab',ch:1,t:'Lab'},
+      {c:'EE-32B',n:'Depth Elective (Core) II',ch:3,t:'Theory'},
+    ],
+    '7':[
+      {c:'EE-411-L',n:'Final Year Design Project I Lab',ch:2,t:'Lab'},
+      {c:'MS-412',n:'Entrepreneurship',ch:2,t:'Theory'},
+      {c:'HU-413',n:'Applications of ICT',ch:2,t:'Theory'},
+      {c:'HU-413-L',n:'Applications of ICT Lab',ch:1,t:'Lab'},
+      {c:'CS-414',n:'Computing Elective II',ch:2,t:'Theory'},
+      {c:'EE-41A',n:'Depth Elective III',ch:3,t:'Theory'},
+      {c:'EE-41A-L',n:'Depth Elective III Lab',ch:1,t:'Lab'},
+      {c:'EE-41B',n:'Depth Elective IV',ch:2,t:'Theory'},
+      {c:'EE-41B-L',n:'Depth Elective IV Lab',ch:1,t:'Lab'},
+    ],
+    '8':[
+      {c:'EE-421-L',n:'Final Year Design Project II Lab',ch:4,t:'Lab'},
+      {c:'CS-422',n:'Language Elective',ch:2,t:'Theory'},
+      {c:'EE-42A',n:'Depth Elective V',ch:3,t:'Theory'},
+      {c:'EE-42A-L',n:'Depth Elective V Lab',ch:1,t:'Lab'},
+      {c:'EE-42B',n:'Open EE Elective I',ch:3,t:'Theory'},
+      {c:'EE-42B-L',n:'Open EE Elective I Lab',ch:1,t:'Lab'},
+      {c:'EE-42C',n:'Open EE Elective II',ch:3,t:'Theory'},
+      {c:'EE-42C-L',n:'Open EE Elective II Lab',ch:1,t:'Lab'},
+    ],
+  }
+},
+'Electronics Engineering (BSc)':{
+  semesters:{
+    '1':[
+      {c:'BH-111',n:'Functional English',ch:3,t:'Theory'},
+      {c:'BH-112',n:'Calculus-I',ch:3,t:'Theory'},
+      {c:'BH-113',n:'Applied Physics',ch:3,t:'Theory'},
+      {c:'BH-113-L',n:'Applied Physics Lab',ch:1,t:'Lab'},
+      {c:'CS-114',n:'Computer Fundamentals & Programming',ch:2,t:'Theory'},
+      {c:'CS-114-L',n:'Computer Fundamentals & Programming Lab',ch:1,t:'Lab'},
+      {c:'BH-115',n:'Islamic Studies/Ethics',ch:2,t:'Theory'},
+      {c:'EN-116-L',n:'Workshop Practice Lab',ch:1,t:'Lab'},
+    ],
+    '2':[
+      {c:'CS-121',n:'Object Oriented Programming',ch:2,t:'Theory'},
+      {c:'CS-121-L',n:'Object Oriented Programming Lab',ch:1,t:'Lab'},
+      {c:'BH-122',n:'Differential Equations',ch:3,t:'Theory'},
+      {c:'BH-123',n:'Calculus-II',ch:3,t:'Theory'},
+      {c:'EN-124',n:'Circuit Analysis-I',ch:3,t:'Theory'},
+      {c:'EN-124-L',n:'Circuit Analysis-I Lab',ch:1,t:'Lab'},
+      {c:'EN-125',n:'Solid-State Electronics',ch:3,t:'Theory'},
+      {c:'BH-126',n:'Civics and Community Engagement',ch:2,t:'Theory'},
+    ],
+    '3':[
+      {c:'BH-211',n:'Linear Algebra',ch:3,t:'Theory'},
+      {c:'BH-212',n:'Expository Writing',ch:3,t:'Theory'},
+      {c:'EN-213',n:'Digital Logic Design',ch:3,t:'Theory'},
+      {c:'EN-213-L',n:'Digital Logic Design Lab',ch:1,t:'Lab'},
+      {c:'EN-214',n:'Circuit Analysis-II',ch:3,t:'Theory'},
+      {c:'EN-214-L',n:'Circuit Analysis-II Lab',ch:1,t:'Lab'},
+      {c:'EN-215',n:'Electronic Devices & Circuits',ch:3,t:'Theory'},
+      {c:'EN-215-L',n:'Electronic Devices & Circuits Lab',ch:1,t:'Lab'},
+    ],
+    '4':[
+      {c:'BH-221',n:'Complex Variables & Transforms',ch:3,t:'Theory'},
+      {c:'EN-222',n:'Probability & Random Variables',ch:3,t:'Theory'},
+      {c:'EN-223',n:'Microprocessors & Microcontrollers',ch:3,t:'Theory'},
+      {c:'EN-223-L',n:'Microprocessors & Microcontrollers Lab',ch:1,t:'Lab'},
+      {c:'EN-224',n:'Electrical Machines',ch:3,t:'Theory'},
+      {c:'EN-224-L',n:'Electrical Machines Lab',ch:1,t:'Lab'},
+      {c:'EN-225',n:'Electronic Circuit Design',ch:3,t:'Theory'},
+      {c:'EN-225-L',n:'Electronic Circuit Design Lab',ch:1,t:'Lab'},
+    ],
+    '5':[
+      {c:'BH-311',n:'Social Sciences Elective',ch:2,t:'Theory'},
+      {c:'EN-312',n:'Integrated Electronics',ch:3,t:'Theory'},
+      {c:'EN-312-L',n:'Integrated Electronics Lab',ch:1,t:'Lab'},
+      {c:'EN-313',n:'Signals Processing',ch:3,t:'Theory'},
+      {c:'EN-313-L',n:'Signals Processing Lab',ch:1,t:'Lab'},
+      {c:'EN-314',n:'Electromagnetic Field Theory',ch:3,t:'Theory'},
+      {c:'EN-315',n:'Instrumentation & Measurements',ch:3,t:'Theory'},
+      {c:'EN-315-L',n:'Instrumentation & Measurements Lab',ch:1,t:'Lab'},
+      {c:'EN-316',n:'Occupational Health and Safety',ch:1,t:'Theory'},
+    ],
+    '6':[
+      {c:'BH-321',n:'Applications of ICT',ch:2,t:'Theory'},
+      {c:'BH-321-L',n:'Applications of ICT Lab',ch:1,t:'Lab'},
+      {c:'EN-322',n:'Analog & Digital Communication',ch:2,t:'Theory'},
+      {c:'EN-322-L',n:'Analog & Digital Communication Lab',ch:1,t:'Lab'},
+      {c:'EN-323',n:'Control Systems',ch:3,t:'Theory'},
+      {c:'EN-323-L',n:'Control Systems Lab',ch:1,t:'Lab'},
+      {c:'EN-324',n:'Power Electronics',ch:3,t:'Theory'},
+      {c:'EN-324-L',n:'Power Electronics Lab',ch:1,t:'Lab'},
+      {c:'BH-325',n:'Ideology and Constitution of Pakistan',ch:2,t:'Theory'},
+    ],
+    '7':[
+      {c:'MS-411',n:'Project Management',ch:2,t:'Theory'},
+      {c:'EN-412',n:'VLSI Design',ch:3,t:'Theory'},
+      {c:'EN-412-L',n:'VLSI Design Lab',ch:1,t:'Lab'},
+      {c:'EN-4XA',n:'Elective-I',ch:3,t:'Theory'},
+      {c:'EN-4XA-L',n:'Elective-I Lab',ch:1,t:'Lab'},
+      {c:'XX-4XX',n:'Elective-II',ch:2,t:'Theory'},
+      {c:'EN-499A-L',n:'Electronics Engineering Project Lab',ch:3,t:'Lab'},
+    ],
+    '8':[
+      {c:'MS-421',n:'Entrepreneurship',ch:2,t:'Theory'},
+      {c:'BH-422',n:'Language Elective',ch:2,t:'Theory'},
+      {c:'EN-4XB',n:'Elective-III',ch:3,t:'Theory'},
+      {c:'EN-4XC',n:'Elective-IV',ch:3,t:'Theory'},
+      {c:'EN-499B-L',n:'Electronics Engineering Project Lab',ch:3,t:'Lab'},
+    ],
+  }
+},
+'Mechanical Engineering (BSc)':{
+  semesters:{
+    '1':[
+      {c:'HU-101',n:'Functional English',ch:3,t:'Theory'},
+      {c:'NS-102',n:'Applied Chemistry',ch:2,t:'Theory'},
+      {c:'NS-101',n:'Calculus & Analytical Geometry',ch:3,t:'Theory'},
+      {c:'CS-101',n:'Programming Fundamentals',ch:2,t:'Theory'},
+      {c:'CS-101-L',n:'Programming Fundamentals Lab',ch:1,t:'Lab'},
+      {c:'ME-111',n:'Engineering Drawing & Graphics',ch:2,t:'Theory'},
+      {c:'ME-111-L',n:'Engineering Drawing & Graphics Lab',ch:1,t:'Lab'},
+      {c:'ME-131',n:'Workshop Practice',ch:1,t:'Theory'},
+      {c:'ME-131-L',n:'Workshop Practice Lab',ch:1,t:'Lab'},
+      {c:'MS-101',n:'Occupational Health and Safety',ch:1,t:'Theory'},
+    ],
+    '2':[
+      {c:'NS-103',n:'Applied Physics',ch:2,t:'Theory'},
+      {c:'NS-104',n:'Linear Algebra & Ordinary Differential Equations',ch:3,t:'Theory'},
+      {c:'ME-112',n:'Engineering Mechanics-I: Statics',ch:2,t:'Theory'},
+      {c:'ME-113',n:'Engineering Materials',ch:2,t:'Theory'},
+      {c:'ME-114-L',n:'Computer Aided Engineering Lab',ch:1,t:'Lab'},
+      {c:'ME-121',n:'Fluid Mechanics-I',ch:3,t:'Theory'},
+      {c:'EE-102',n:'Electrical Engineering',ch:2,t:'Theory'},
+      {c:'HU-102',n:'Civics & Community Engagement',ch:2,t:'Theory'},
+    ],
+    '3':[
+      {c:'NS-205',n:'Complex Variables & Transforms',ch:3,t:'Theory'},
+      {c:'ME-211',n:'Engineering Mechanics-II: Dynamics',ch:2,t:'Theory'},
+      {c:'ME-212-L',n:'Engineering Mechanics Lab',ch:1,t:'Lab'},
+      {c:'ME-213',n:'Mechanics of Materials-I',ch:3,t:'Theory'},
+      {c:'ME-223',n:'Thermodynamics-I',ch:3,t:'Theory'},
+      {c:'ME-231',n:'Manufacturing Processes',ch:3,t:'Theory'},
+      {c:'ME-221',n:'Fluid Mechanics-II',ch:2,t:'Theory'},
+      {c:'ME-222-L',n:'Fluid Mechanics Lab',ch:1,t:'Lab'},
+    ],
+    '4':[
+      {c:'NS-206',n:'Numerical Analysis',ch:3,t:'Theory'},
+      {c:'ME-216',n:'Machine Design-I',ch:2,t:'Theory'},
+      {c:'ME-224',n:'Thermodynamics-II',ch:2,t:'Theory'},
+      {c:'ME-214',n:'Mechanics of Materials-II',ch:3,t:'Theory'},
+      {c:'ME-232-L',n:'Manufacturing Processes Lab',ch:1,t:'Lab'},
+      {c:'ME-225-L',n:'Thermodynamics Lab',ch:1,t:'Lab'},
+      {c:'ME-215-L',n:'Mechanics of Materials Lab',ch:1,t:'Lab'},
+      {c:'HU-203',n:'Ideology & Constitution of Pakistan',ch:2,t:'Theory'},
+      {c:'HU-204',n:'Islamic Studies',ch:2,t:'Theory'},
+    ],
+    '5':[
+      {c:'HU-30X',n:'Arts & Humanities Elective',ch:2,t:'Theory'},
+      {c:'NS-30X',n:'Math Elective',ch:2,t:'Theory'},
+      {c:'ME-331',n:'Measurement & Instrumentation',ch:2,t:'Theory'},
+      {c:'ME-312-L',n:'Computer Aided Engineering Lab',ch:1,t:'Lab'},
+      {c:'ME-311',n:'Machine Design-II',ch:2,t:'Theory'},
+      {c:'ME-321',n:'Heat & Mass Transfer',ch:3,t:'Theory'},
+      {c:'EE-303',n:'Electronics Engineering',ch:2,t:'Theory'},
+      {c:'EE-304-L',n:'Electrical & Electronics Engineering Lab',ch:1,t:'Lab'},
+      {c:'HU-307',n:'Applications of ICT',ch:2,t:'Theory'},
+      {c:'HU-307-L',n:'Applications of ICT Lab',ch:1,t:'Lab'},
+    ],
+    '6':[
+      {c:'HU-308',n:'Expository Writing',ch:3,t:'Theory'},
+      {c:'CS-302',n:'Applied AI & Machine Learning',ch:2,t:'Theory'},
+      {c:'CS-302-L',n:'Applied AI & Machine Learning Lab',ch:1,t:'Lab'},
+      {c:'ME-313',n:'Mechanics of Machines',ch:3,t:'Theory'},
+      {c:'ME-332',n:'Control Engineering',ch:2,t:'Theory'},
+      {c:'ME-333-L',n:'M&I and Control Lab',ch:1,t:'Lab'},
+      {c:'ME-323-L',n:'Heat Transfer & R&A/C Lab',ch:1,t:'Lab'},
+      {c:'ME-322',n:'Refrigeration & Air Conditioning',ch:3,t:'Theory'},
+      {c:'ME-324',n:'Power Plants',ch:2,t:'Theory'},
+    ],
+    '7':[
+      {c:'MS-402',n:'Project Management',ch:2,t:'Theory'},
+      {c:'ME-421',n:'Internal Combustion Engines',ch:2,t:'Theory'},
+      {c:'ME-411',n:'Mechanical Vibrations',ch:3,t:'Theory'},
+      {c:'ME-412-L',n:'Mechanisms & Mechanical Vibrations Lab',ch:1,t:'Lab'},
+      {c:'ME-422-L',n:'Power Plants & IC Engine Lab',ch:1,t:'Lab'},
+      {c:'ME-4XY-A',n:'Technical Elective-I',ch:2,t:'Theory'},
+      {c:'ME-4XY-A-L',n:'Technical Elective-I Lab',ch:1,t:'Lab'},
+      {c:'ME-499-A-L',n:'Design Project-I Lab',ch:3,t:'Lab'},
+    ],
+    '8':[
+      {c:'HU-40X',n:'Social Sciences Elective',ch:2,t:'Theory'},
+      {c:'MS-403',n:'Entrepreneurship',ch:2,t:'Theory'},
+      {c:'ME-4XY-B',n:'Technical Elective-II',ch:2,t:'Theory'},
+      {c:'ME-4XY-B-L',n:'Technical Elective-II Lab',ch:1,t:'Lab'},
+      {c:'ME-4XY-C',n:'Technical Elective-III',ch:2,t:'Theory'},
+      {c:'ME-4XY-C-L',n:'Technical Elective-III Lab',ch:1,t:'Lab'},
+      {c:'ME-499-B-L',n:'Design Project-II Lab',ch:3,t:'Lab'},
+      {c:'ME-413',n:'Finite Element Methods',ch:2,t:'Theory'},
+      {c:'ME-413-L',n:'Finite Element Methods Lab',ch:1,t:'Lab'},
+    ],
+  }
+},
+'Mechatronics Engineering (BSc)':{
+  semesters:{
+    '1':[
+      {c:'GS-111',n:'Calculus and Analytical Geometry',ch:3,t:'Theory'},
+      {c:'ME-112',n:'Engineering Statics',ch:3,t:'Theory'},
+      {c:'HS-113',n:'Communication Skills',ch:2,t:'Theory'},
+      {c:'ME-114-L',n:'Workshop Practice Lab',ch:2,t:'Lab'},
+      {c:'EE-115',n:'Electric Circuits Analysis',ch:3,t:'Theory'},
+      {c:'EE-115-L',n:'Electric Circuits Analysis Lab',ch:1,t:'Lab'},
+      {c:'HS-116',n:'Islamic Studies',ch:2,t:'Theory'},
+    ],
+    '2':[
+      {c:'GS-121',n:'ODE & Linear Algebra',ch:3,t:'Theory'},
+      {c:'ME-122-L',n:'Engineering Drawing Lab',ch:2,t:'Lab'},
+      {c:'CS-123',n:'Computer Programming',ch:2,t:'Theory'},
+      {c:'CS-123-L',n:'Computer Programming Lab',ch:1,t:'Lab'},
+      {c:'GS-124',n:'Applied Physics',ch:3,t:'Theory'},
+      {c:'GS-124-L',n:'Applied Physics Lab',ch:1,t:'Lab'},
+      {c:'HS-125',n:'Technical Report Writing',ch:2,t:'Theory'},
+      {c:'HS-126',n:'Pakistan Studies',ch:2,t:'Theory'},
+      {c:'HS-127',n:'Social Sciences Electives I',ch:2,t:'Theory'},
+    ],
+    '3':[
+      {c:'GS-211',n:'Vector Calculus',ch:3,t:'Theory'},
+      {c:'EE-212',n:'Electronics Devices and Circuits',ch:3,t:'Theory'},
+      {c:'EE-212-L',n:'Electronics Devices and Circuits Lab',ch:1,t:'Lab'},
+      {c:'ME-213',n:'Engineering Dynamics',ch:3,t:'Theory'},
+      {c:'MTE-214-L',n:'Solid Modelling Lab',ch:1,t:'Lab'},
+      {c:'ME-215',n:'Materials and Manufacturing Processes',ch:3,t:'Theory'},
+      {c:'CS-216',n:'Data Structures and Object-Oriented Programming',ch:3,t:'Theory'},
+      {c:'CS-216-L',n:'Data Structures and Object-Oriented Programming Lab',ch:1,t:'Lab'},
+      {c:'HS-217',n:'Social Sciences Electives II',ch:2,t:'Theory'},
+    ],
+    '4':[
+      {c:'GS-221',n:'Complex Variables and Transform',ch:3,t:'Theory'},
+      {c:'EE-222',n:'Electronic Circuits Design',ch:3,t:'Theory'},
+      {c:'EE-222-L',n:'Electronic Circuits Design Lab',ch:1,t:'Lab'},
+      {c:'EE-223',n:'Signals and Systems',ch:2,t:'Theory'},
+      {c:'ME-224',n:'Mechanics of Materials',ch:2,t:'Theory'},
+      {c:'ME-224-L',n:'Mechanics of Materials Lab',ch:1,t:'Lab'},
+      {c:'CS-225',n:'Digital Logic Design',ch:2,t:'Theory'},
+      {c:'CS-225-L',n:'Digital Logic Design Lab',ch:1,t:'Lab'},
+      {c:'MTE-226',n:'Actuating Systems',ch:3,t:'Theory'},
+      {c:'MTE-226-L',n:'Actuating Systems Lab',ch:1,t:'Lab'},
+    ],
+    '5':[
+      {c:'GS-311',n:'Probability and Statistics',ch:3,t:'Theory'},
+      {c:'MTE-312',n:'Microcontroller and Embedded Systems',ch:2,t:'Theory'},
+      {c:'MTE-312-L',n:'Microcontroller and Embedded Systems Lab',ch:2,t:'Lab'},
+      {c:'ME-313',n:'Fluid Mechanics',ch:2,t:'Theory'},
+      {c:'ME-313-L',n:'Fluid Mechanics Lab',ch:1,t:'Lab'},
+      {c:'MTE-314',n:'Instrumentation and Measurement',ch:3,t:'Theory'},
+      {c:'MTE-314-L',n:'Instrumentation and Measurement Lab',ch:1,t:'Lab'},
+      {c:'ME-315',n:'Theory of Machines',ch:2,t:'Theory'},
+      {c:'ME-315-L',n:'Theory of Machines Lab',ch:1,t:'Lab'},
+      {c:'HS-316',n:'Management Sciences Elective',ch:3,t:'Theory'},
+    ],
+    '6':[
+      {c:'GS-321',n:'Numerical Methods',ch:2,t:'Theory'},
+      {c:'MTE-322',n:'Mechatronics Systems Design',ch:2,t:'Theory'},
+      {c:'MTE-322-L',n:'Mechatronics Systems Design Lab',ch:2,t:'Lab'},
+      {c:'MTE-323A',n:'Design of Machine Elements',ch:2,t:'Theory'},
+      {c:'MTE-323B',n:'Engineering Elective I',ch:3,t:'Theory'},
+      {c:'MS-325',n:'Modeling and Simulation',ch:3,t:'Theory'},
+      {c:'ME-326',n:'Fundamentals of Thermal Sciences',ch:3,t:'Theory'},
+      {c:'ME-326-L',n:'Fundamentals of Thermal Sciences Lab',ch:1,t:'Lab'},
+    ],
+    '7':[
+      {c:'MTE-411',n:'Robotics',ch:3,t:'Theory'},
+      {c:'MTE-411-L',n:'Robotics Lab',ch:1,t:'Lab'},
+      {c:'MTE-412',n:'Control Systems',ch:3,t:'Theory'},
+      {c:'MTE-412-L',n:'Control Systems Lab',ch:1,t:'Lab'},
+      {c:'MTE-413',n:'Engineering Elective II',ch:3,t:'Theory'},
+      {c:'MS-414',n:'Engineering Economics',ch:3,t:'Theory'},
+      {c:'MTE-415A-L',n:'Senior Design Project Lab',ch:3,t:'Lab'},
+    ],
+    '8':[
+      {c:'MTE-421',n:'Engineering Elective III',ch:3,t:'Theory'},
+      {c:'MTE-422',n:'Manufacturing Automation',ch:2,t:'Theory'},
+      {c:'MTE-422-L',n:'Manufacturing Automation Lab',ch:1,t:'Lab'},
+      {c:'MTE-415B-L',n:'Senior Design Project Lab',ch:3,t:'Lab'},
+    ],
+  }
+},
+'Industrial & Manufacturing Engineering (BSc)':{
+  semesters:{
+    '1':[
+      {c:'HU-101',n:'English I (Communication/Business Skills)',ch:2,t:'Theory'},
+      {c:'HU-101-L',n:'English I (Communication/Business Skills) Lab',ch:1,t:'Lab'},
+      {c:'IE-111',n:'Data Analytics',ch:1,t:'Theory'},
+      {c:'IE-111-L',n:'Data Analytics Lab',ch:1,t:'Lab'},
+      {c:'IE-112',n:'Workshop Practice',ch:1,t:'Theory'},
+      {c:'IE-112-L',n:'Workshop Practice Lab',ch:1,t:'Lab'},
+      {c:'IE-113',n:'Engineering Drawing and Graphics',ch:2,t:'Theory'},
+      {c:'IE-113-L',n:'Engineering Drawing and Graphics Lab',ch:1,t:'Lab'},
+      {c:'NS-101',n:'Probability and Statistics',ch:3,t:'Theory'},
+      {c:'NS-102',n:'Calculus',ch:3,t:'Theory'},
+    ],
+    '2':[
+      {c:'HU-102',n:'Logic and Critical Thinking',ch:2,t:'Theory'},
+      {c:'NS-103',n:'Differential Equations',ch:3,t:'Theory'},
+      {c:'IE-114',n:'Mechanical Technology',ch:2,t:'Theory'},
+      {c:'IE-114-L',n:'Mechanical Technology Lab',ch:1,t:'Lab'},
+      {c:'HU-103',n:'Islamic Studies/Ethics',ch:2,t:'Theory'},
+      {c:'CS-101',n:'Introduction to Computing',ch:2,t:'Theory'},
+      {c:'CS-101-L',n:'Introduction to Computing Lab',ch:1,t:'Lab'},
+      {c:'CS-102',n:'Computer Aided Design and Modeling',ch:2,t:'Theory'},
+      {c:'CS-102-L',n:'Computer Aided Design and Modeling Lab',ch:1,t:'Lab'},
+    ],
+    '3':[
+      {c:'HU-202',n:'Pakistan Studies',ch:2,t:'Theory'},
+      {c:'HU-201',n:'Technical Writing Skills',ch:2,t:'Theory'},
+      {c:'HU-201-L',n:'Technical Writing Skills Lab',ch:1,t:'Lab'},
+      {c:'IE-211',n:'Engineering Mechanics',ch:2,t:'Theory'},
+      {c:'IE-211-L',n:'Engineering Mechanics Lab',ch:1,t:'Lab'},
+      {c:'NS-201',n:'Applied Physics',ch:2,t:'Theory'},
+      {c:'NS-201-L',n:'Applied Physics Lab',ch:1,t:'Lab'},
+      {c:'IE-212',n:'Materials Engineering',ch:2,t:'Theory'},
+      {c:'IE-212-L',n:'Materials Engineering Lab',ch:1,t:'Lab'},
+      {c:'NS-202',n:'Applied Linear Algebra',ch:3,t:'Theory'},
+      {c:'NS-202-L',n:'Applied Linear Algebra Lab',ch:1,t:'Lab'},
+    ],
+    '4':[
+      {c:'NS-203',n:'Numerical Analysis',ch:3,t:'Theory'},
+      {c:'IE-213',n:'Operations Research',ch:3,t:'Theory'},
+      {c:'IE-213-L',n:'Operations Research Lab',ch:1,t:'Lab'},
+      {c:'IE-214',n:'Manufacturing Processes',ch:3,t:'Theory'},
+      {c:'IE-214-L',n:'Manufacturing Processes Lab',ch:1,t:'Lab'},
+      {c:'IE-215',n:'Mechanics of Materials',ch:2,t:'Theory'},
+      {c:'IE-215-L',n:'Mechanics of Materials Lab',ch:1,t:'Lab'},
+      {c:'NS-204',n:'Industrial Electronics',ch:2,t:'Theory'},
+      {c:'NS-204-L',n:'Industrial Electronics Lab',ch:1,t:'Lab'},
+    ],
+    '5':[
+      {c:'IE-311',n:'Operations of Manufacturing Systems',ch:2,t:'Theory'},
+      {c:'IE-311-L',n:'Operations of Manufacturing Systems Lab',ch:1,t:'Lab'},
+      {c:'IE-312',n:'Applied Machine Design & FEM',ch:2,t:'Theory'},
+      {c:'IE-312-L',n:'Applied Machine Design & FEM Lab',ch:1,t:'Lab'},
+      {c:'IE-313',n:'Metrology & Statistical Quality Control',ch:3,t:'Theory'},
+      {c:'IE-313-L',n:'Metrology & Statistical Quality Control Lab',ch:1,t:'Lab'},
+      {c:'IE-314',n:'Optimization Techniques',ch:2,t:'Theory'},
+      {c:'IE-314-L',n:'Optimization Techniques Lab',ch:1,t:'Lab'},
+      {c:'IE-315',n:'Work Study & Methods Engineering',ch:3,t:'Theory'},
+      {c:'IE-315-L',n:'Work Study & Methods Engineering Lab',ch:1,t:'Lab'},
+    ],
+    '6':[
+      {c:'IE-301',n:'Industrial Simulation',ch:2,t:'Theory'},
+      {c:'IE-301-L',n:'Industrial Simulation Lab',ch:1,t:'Lab'},
+      {c:'IE-316',n:'Human Factors Engineering',ch:2,t:'Theory'},
+      {c:'IE-316-L',n:'Human Factors Engineering Lab',ch:1,t:'Lab'},
+      {c:'IE-321',n:'Management of Engineering Projects',ch:2,t:'Theory'},
+      {c:'IE-321-L',n:'Management of Engineering Projects Lab',ch:1,t:'Lab'},
+      {c:'HU-301',n:'Engineering Economics',ch:3,t:'Theory'},
+      {c:'IE-317',n:'Planning and Scheduling in Manufacturing',ch:2,t:'Theory'},
+      {c:'IE-318',n:'Industrial Automation and Control',ch:2,t:'Theory'},
+      {c:'IE-318-L',n:'Industrial Automation and Control Lab',ch:1,t:'Lab'},
+    ],
+    '7':[
+      {c:'IE-411',n:'Design of Experiments',ch:3,t:'Theory'},
+      {c:'IE-411-L',n:'Design of Experiments Lab',ch:1,t:'Lab'},
+      {c:'IE-412',n:'Industrial Facilities Design',ch:2,t:'Theory'},
+      {c:'IE-412-L',n:'Industrial Facilities Design Lab',ch:1,t:'Lab'},
+      {c:'IE-XXX-A',n:'Elective I',ch:3,t:'Theory'},
+      {c:'IE-XXX-A-L',n:'Elective I Lab',ch:1,t:'Lab'},
+      {c:'IE-XXX-B',n:'Elective II',ch:3,t:'Theory'},
+      {c:'IE-491-L',n:'Project Phase I Lab',ch:3,t:'Lab'},
+    ],
+    '8':[
+      {c:'IE-436',n:'Supply Chain and Logistics Management',ch:3,t:'Theory'},
+      {c:'IE-XXX-C',n:'Elective I',ch:2,t:'Theory'},
+      {c:'IE-XXX-C-L',n:'Elective I Lab',ch:1,t:'Lab'},
+      {c:'IE-XXX-D',n:'Elective II',ch:2,t:'Theory'},
+      {c:'IE-XXX-D-L',n:'Elective II Lab',ch:1,t:'Lab'},
+      {c:'IE-XXX-E',n:'Elective III',ch:3,t:'Theory'},
+      {c:'IE-492-L',n:'Project Phase II Lab',ch:3,t:'Lab'},
+    ],
+  }
+},
+'Computer Engineering (BSc)':{
+  semesters:{
+    '1':[
+      {c:'CP-101',n:'Information and Communication Technologies',ch:2,t:'Theory'},
+      {c:'CP-101-L',n:'Information and Communication Technologies Lab',ch:1,t:'Lab'},
+      {c:'CP-102',n:'Circuit Analysis',ch:3,t:'Theory'},
+      {c:'CP-102-L',n:'Circuit Analysis Lab',ch:1,t:'Lab'},
+      {c:'NS-103',n:'Applied Physics',ch:3,t:'Theory'},
+      {c:'NS-103-L',n:'Applied Physics Lab',ch:1,t:'Lab'},
+      {c:'MA-104',n:'Calculus & Analytical Geometry',ch:3,t:'Theory'},
+      {c:'HU-105',n:'Functional English',ch:3,t:'Theory'},
+    ],
+    '2':[
+      {c:'CP-106',n:'Digital Logic Design',ch:3,t:'Theory'},
+      {c:'CP-106-L',n:'Digital Logic Design Lab',ch:1,t:'Lab'},
+      {c:'CP-107',n:'Programming Fundamentals',ch:3,t:'Theory'},
+      {c:'CP-107-L',n:'Programming Fundamentals Lab',ch:1,t:'Lab'},
+      {c:'CP-108',n:'Electronic Devices and Circuits',ch:3,t:'Theory'},
+      {c:'CP-108-L',n:'Electronic Devices and Circuits Lab',ch:1,t:'Lab'},
+      {c:'MA-109',n:'Differential Equations',ch:3,t:'Theory'},
+      {c:'HU-110',n:'Islamic Studies',ch:2,t:'Theory'},
+      {c:'MD-111',n:'Occupational Health and Safety',ch:1,t:'Theory'},
+    ],
+    '3':[
+      {c:'CP-201',n:'Computer Organization and Architecture',ch:3,t:'Theory'},
+      {c:'CP-201-L',n:'Computer Organization and Architecture Lab',ch:1,t:'Lab'},
+      {c:'MA-202',n:'Discrete Structures',ch:3,t:'Theory'},
+      {c:'HU-203',n:'Business Communication and Expository Writing',ch:3,t:'Theory'},
+      {c:'CP-204-L',n:'Workshop and Tools Lab',ch:1,t:'Lab'},
+      {c:'MA-205',n:'Complex Variable and Transform',ch:3,t:'Theory'},
+      {c:'CP-206',n:'Object Oriented Programming',ch:3,t:'Theory'},
+      {c:'CP-206-L',n:'Object Oriented Programming Lab',ch:1,t:'Lab'},
+    ],
+    '4':[
+      {c:'CP-207',n:'Data Structures and Algorithms',ch:3,t:'Theory'},
+      {c:'CP-207-L',n:'Data Structures and Algorithms Lab',ch:1,t:'Lab'},
+      {c:'CP-208',n:'Operating Systems',ch:3,t:'Theory'},
+      {c:'CP-208-L',n:'Operating Systems Lab',ch:1,t:'Lab'},
+      {c:'CP-209',n:'Microprocessor and Interfacing',ch:3,t:'Theory'},
+      {c:'CP-209-L',n:'Microprocessor and Interfacing Lab',ch:1,t:'Lab'},
+      {c:'CP-210',n:'Signals & Systems',ch:3,t:'Theory'},
+      {c:'HU-211',n:'Ideology & Constitution of Pakistan',ch:2,t:'Theory'},
+    ],
+    '5':[
+      {c:'MA-301',n:'Linear Algebra',ch:2,t:'Theory'},
+      {c:'CP-302',n:'Computer Communication & Networks',ch:3,t:'Theory'},
+      {c:'CP-302-L',n:'Computer Communication & Networks Lab',ch:1,t:'Lab'},
+      {c:'CP-303',n:'Digital Signal Processing',ch:3,t:'Theory'},
+      {c:'CP-303-L',n:'Digital Signal Processing Lab',ch:1,t:'Lab'},
+      {c:'MA-304',n:'Probability and Statistics',ch:2,t:'Theory'},
+      {c:'HU-305',n:'Project Management',ch:2,t:'Theory'},
+      {c:'CP-306',n:'Database Management Systems',ch:3,t:'Theory'},
+      {c:'CP-306-L',n:'Database Management Systems Lab',ch:1,t:'Lab'},
+    ],
+    '6':[
+      {c:'CP-307',n:'Digital System Design',ch:3,t:'Theory'},
+      {c:'CP-307-L',n:'Digital System Design Lab',ch:1,t:'Lab'},
+      {c:'CP-308',n:'Software Engineering',ch:3,t:'Theory'},
+      {c:'HU-309',n:'Entrepreneurship',ch:2,t:'Theory'},
+      {c:'CP-310',n:'CEDE-I',ch:3,t:'Theory'},
+      {c:'CP-310-L',n:'CEDE-I Lab',ch:1,t:'Lab'},
+      {c:'CP-311',n:'CEDE-II',ch:3,t:'Theory'},
+      {c:'CP-311-L',n:'CEDE-II Lab',ch:1,t:'Lab'},
+    ],
+    '7':[
+      {c:'CP-401-L',n:'FYDP-I Lab',ch:2,t:'Lab'},
+      {c:'CP-402',n:'Control Systems',ch:3,t:'Theory'},
+      {c:'CP-402-L',n:'Control Systems Lab',ch:1,t:'Lab'},
+      {c:'HU-403',n:'Economics for Engineers',ch:2,t:'Theory'},
+      {c:'HU-404',n:'Professional Practices',ch:1,t:'Theory'},
+      {c:'CP-405',n:'CEDE-III',ch:3,t:'Theory'},
+      {c:'CP-405-L',n:'CEDE-III Lab',ch:1,t:'Lab'},
+      {c:'MD-406',n:'MDEE-I',ch:3,t:'Theory'},
+    ],
+    '8':[
+      {c:'CP-407-L',n:'FYDP-II Lab',ch:4,t:'Lab'},
+      {c:'HU-408',n:'Language Elective',ch:2,t:'Theory'},
+      {c:'HU-409',n:'Civics & Community Engagement',ch:2,t:'Theory'},
+      {c:'CP-410',n:'CEDE-IV',ch:3,t:'Theory'},
+      {c:'CP-410-L',n:'CEDE-IV Lab',ch:1,t:'Lab'},
+      {c:'MD-411',n:'MDEE-II',ch:3,t:'Theory'},
+    ],
+  }
+},
+'Artificial Intelligence (BS)':{
+  semesters:{
+    '1':[
+      {c:'CS-101',n:'Programming Fundamentals',ch:3,t:'Theory'},
+      {c:'CS-101-L',n:'Programming Fundamentals Lab',ch:1,t:'Lab'},
+      {c:'GE-102',n:'ICT',ch:2,t:'Theory'},
+      {c:'GE-102-L',n:'ICT Lab',ch:1,t:'Lab'},
+      {c:'GE-103',n:'Discrete Structures',ch:3,t:'Theory'},
+      {c:'GE-104',n:'Calculus & Analytical Geometry',ch:3,t:'Theory'},
+      {c:'GE-105',n:'Functional English',ch:3,t:'Theory'},
+    ],
+    '2':[
+      {c:'CS-106',n:'Object Oriented Programming',ch:3,t:'Theory'},
+      {c:'CS-106-L',n:'Object Oriented Programming Lab',ch:1,t:'Lab'},
+      {c:'CS-107',n:'Digital Logic Design',ch:2,t:'Theory'},
+      {c:'CS-107-L',n:'Digital Logic Design Lab',ch:1,t:'Lab'},
+      {c:'GE-108',n:'Applied Physics',ch:2,t:'Theory'},
+      {c:'GE-108-L',n:'Applied Physics Lab',ch:1,t:'Lab'},
+      {c:'MT-109',n:'Multivariable Calculus',ch:3,t:'Theory'},
+      {c:'MT-110',n:'Linear Algebra',ch:3,t:'Theory'},
+      {c:'GE-111',n:'Islamic Studies',ch:2,t:'Theory'},
+    ],
+    '3':[
+      {c:'CS-201',n:'Computer Org. and Assembly Language',ch:2,t:'Theory'},
+      {c:'CS-201-L',n:'Computer Org. and Assembly Language Lab',ch:1,t:'Lab'},
+      {c:'CS-202',n:'Data Structures',ch:3,t:'Theory'},
+      {c:'CS-202-L',n:'Data Structures Lab',ch:1,t:'Lab'},
+      {c:'CS-203',n:'Database Systems',ch:3,t:'Theory'},
+      {c:'CS-203-L',n:'Database Systems Lab',ch:1,t:'Lab'},
+      {c:'MT-204',n:'Probability and Statistics',ch:3,t:'Theory'},
+      {c:'GE-205',n:'Expository Writing',ch:3,t:'Theory'},
+    ],
+    '4':[
+      {c:'CS-206',n:'Artificial Intelligence',ch:2,t:'Theory'},
+      {c:'CS-206-L',n:'Artificial Intelligence Lab',ch:1,t:'Lab'},
+      {c:'CS-207',n:'Computer Networks',ch:2,t:'Theory'},
+      {c:'CS-207-L',n:'Computer Networks Lab',ch:1,t:'Lab'},
+      {c:'CS-208',n:'Programming for AI',ch:2,t:'Theory'},
+      {c:'CS-208-L',n:'Programming for AI Lab',ch:1,t:'Lab'},
+      {c:'CS-209',n:'Machine Learning',ch:2,t:'Theory'},
+      {c:'CS-209-L',n:'Machine Learning Lab',ch:1,t:'Lab'},
+      {c:'CS-210',n:'Software Engineering',ch:3,t:'Theory'},
+      {c:'GE-211',n:'Introduction to Management',ch:2,t:'Theory'},
+    ],
+    '5':[
+      {c:'CS-301',n:'Information Security',ch:2,t:'Theory'},
+      {c:'CS-301-L',n:'Information Security Lab',ch:1,t:'Lab'},
+      {c:'CS-302',n:'Operating Systems',ch:2,t:'Theory'},
+      {c:'CS-302-L',n:'Operating Systems Lab',ch:1,t:'Lab'},
+      {c:'CS-303',n:'Artificial Neural Networks & Deep Learning',ch:2,t:'Theory'},
+      {c:'CS-303-L',n:'Artificial Neural Networks & Deep Learning Lab',ch:1,t:'Lab'},
+      {c:'CS-304',n:'Knowledge Representation & Reasoning',ch:2,t:'Theory'},
+      {c:'CS-304-L',n:'Knowledge Representation & Reasoning Lab',ch:1,t:'Lab'},
+      {c:'GE-305',n:'Communication & Presentation Skills',ch:3,t:'Theory'},
+      {c:'GE-306',n:'Ideology & Constitution of Pakistan',ch:2,t:'Theory'},
+    ],
+    '6':[
+      {c:'CS-307',n:'Computer Vision',ch:2,t:'Theory'},
+      {c:'CS-307-L',n:'Computer Vision Lab',ch:1,t:'Lab'},
+      {c:'CS-308',n:'Parallel & Distributed Computing',ch:2,t:'Theory'},
+      {c:'CS-308-L',n:'Parallel & Distributed Computing Lab',ch:1,t:'Lab'},
+      {c:'GE-309',n:'Entrepreneurship',ch:2,t:'Theory'},
+      {c:'EN-310',n:'Technical and Business Writing',ch:3,t:'Theory'},
+      {c:'CS-311',n:'AI Elective-I',ch:2,t:'Theory'},
+      {c:'CS-311-L',n:'AI Elective-I Lab',ch:1,t:'Lab'},
+      {c:'CS-312',n:'AI Elective-II',ch:2,t:'Theory'},
+      {c:'CS-312-L',n:'AI Elective-II Lab',ch:1,t:'Lab'},
+    ],
+    '7':[
+      {c:'CS-401-L',n:'FYP-I Lab',ch:2,t:'Lab'},
+      {c:'CS-402',n:'Analysis of Algorithms',ch:3,t:'Theory'},
+      {c:'CS-403',n:'AI Elective-III',ch:2,t:'Theory'},
+      {c:'CS-403-L',n:'AI Elective-III Lab',ch:1,t:'Lab'},
+      {c:'CS-404',n:'AI Elective-IV',ch:2,t:'Theory'},
+      {c:'CS-404-L',n:'AI Elective-IV Lab',ch:1,t:'Lab'},
+      {c:'CS-405',n:'AI Elective-V',ch:3,t:'Theory'},
+      {c:'GE-406',n:'Professional Practices',ch:2,t:'Theory'},
+    ],
+    '8':[
+      {c:'CS-407-L',n:'FYP-II Lab',ch:4,t:'Lab'},
+      {c:'SS-408',n:'Social Science Elective',ch:3,t:'Theory'},
+      {c:'GE-409',n:'Civics & Community Engagement',ch:2,t:'Theory'},
+      {c:'CS-410',n:'AI Elective-VI',ch:2,t:'Theory'},
+      {c:'CS-410-L',n:'AI Elective-VI Lab',ch:1,t:'Lab'},
+      {c:'CS-411',n:'AI Elective-VII',ch:3,t:'Theory'},
+    ],
+  }
+},
+'Software Engineering (BSc)':{
+  semesters:{
+    '1':[
+      {c:'SE-101',n:'Information and Communication Technologies',ch:3,t:'Theory'},
+      {c:'SE-101-L',n:'Information and Communication Technologies Lab',ch:1,t:'Lab'},
+      {c:'SE-102',n:'Introduction to Software Engineering',ch:3,t:'Theory'},
+      {c:'MA-103',n:'Calculus and Analytical Geometry',ch:3,t:'Theory'},
+      {c:'HU-104',n:'Functional English',ch:3,t:'Theory'},
+      {c:'HU-105',n:'Pakistan Studies',ch:2,t:'Theory'},
+      {c:'MDE-106',n:'Occupational Health and Safety',ch:1,t:'Theory'},
+    ],
+    '2':[
+      {c:'MA-107',n:'Applied Physics',ch:3,t:'Theory'},
+      {c:'SE-108',n:'Discrete Structures',ch:3,t:'Theory'},
+      {c:'SE-109',n:'Software Requirements Engineering',ch:2,t:'Theory'},
+      {c:'SE-109-L',n:'Software Requirements Engineering Lab',ch:1,t:'Lab'},
+      {c:'SE-110',n:'Computer Programming',ch:3,t:'Theory'},
+      {c:'SE-110-L',n:'Computer Programming Lab',ch:1,t:'Lab'},
+      {c:'MA-111',n:'Linear Algebra and Differential Equations',ch:3,t:'Theory'},
+      {c:'HU-112',n:'Communication Skills',ch:2,t:'Theory'},
+    ],
+    '3':[
+      {c:'HU-201',n:'Islamic Studies/Ethics',ch:2,t:'Theory'},
+      {c:'SE-202',n:'Data Structures and Algorithm',ch:3,t:'Theory'},
+      {c:'SE-202-L',n:'Data Structures and Algorithm Lab',ch:1,t:'Lab'},
+      {c:'MA-203',n:'Numeric and Symbolic Computing',ch:3,t:'Theory'},
+      {c:'HU-204',n:'Technical Writing and Presentation Skills',ch:3,t:'Theory'},
+      {c:'SE-205',n:'Object Oriented Programming',ch:3,t:'Theory'},
+      {c:'SE-205-L',n:'Object Oriented Programming Lab',ch:1,t:'Lab'},
+    ],
+    '4':[
+      {c:'MA-206',n:'Probability and Statistics',ch:3,t:'Theory'},
+      {c:'SE-207',n:'Software Design and Architecture',ch:3,t:'Theory'},
+      {c:'SE-207-L',n:'Software Design and Architecture Lab',ch:1,t:'Lab'},
+      {c:'SE-208',n:'Database Systems',ch:3,t:'Theory'},
+      {c:'SE-208-L',n:'Database Systems Lab',ch:1,t:'Lab'},
+      {c:'SS-209',n:'Engineering Economics',ch:3,t:'Theory'},
+      {c:'SE-210',n:'Operating Systems',ch:3,t:'Theory'},
+      {c:'SE-210-L',n:'Operating Systems Lab',ch:1,t:'Lab'},
+    ],
+    '5':[
+      {c:'SE-301',n:'Software Quality Engineering',ch:3,t:'Theory'},
+      {c:'SE-301-L',n:'Software Quality Engineering Lab',ch:1,t:'Lab'},
+      {c:'MG-302',n:'Entrepreneurship',ch:2,t:'Theory'},
+      {c:'SE-303',n:'Formal Methods in Software Engineering',ch:3,t:'Theory'},
+      {c:'SE-304',n:'Computer Networks',ch:3,t:'Theory'},
+      {c:'SE-304-L',n:'Computer Networks Lab',ch:1,t:'Lab'},
+      {c:'SE-305',n:'Web Engineering',ch:3,t:'Theory'},
+      {c:'SE-305-L',n:'Web Engineering Lab',ch:1,t:'Lab'},
+    ],
+    '6':[
+      {c:'SE-306',n:'Design and Analysis of Algorithms',ch:3,t:'Theory'},
+      {c:'SE-307',n:'Software Construction and Development',ch:2,t:'Theory'},
+      {c:'SE-307-L',n:'Software Construction and Development Lab',ch:1,t:'Lab'},
+      {c:'SE-308',n:'Digital Image Processing',ch:3,t:'Theory'},
+      {c:'SE-308-L',n:'Digital Image Processing Lab',ch:1,t:'Lab'},
+      {c:'MDE-309',n:'Embedded Systems',ch:3,t:'Theory'},
+      {c:'SE-XXX',n:'SE Elective I',ch:3,t:'Theory'},
+    ],
+    '7':[
+      {c:'SE-401',n:'Software Project Management',ch:2,t:'Theory'},
+      {c:'SE-401-L',n:'Software Project Management Lab',ch:1,t:'Lab'},
+      {c:'SE-402-L',n:'Final Year Project-I Lab',ch:2,t:'Lab'},
+      {c:'SE-403',n:'Information Security',ch:3,t:'Theory'},
+      {c:'MG-404',n:'Management and Marketing',ch:2,t:'Theory'},
+      {c:'SE-XXX-A',n:'SE Elective II',ch:3,t:'Theory'},
+      {c:'SE-XXX-B',n:'SE Elective III',ch:3,t:'Theory'},
+    ],
+    '8':[
+      {c:'SE-405',n:'Human Computer Interaction',ch:3,t:'Theory'},
+      {c:'SE-406-L',n:'Final Year Project II Lab',ch:4,t:'Lab'},
+      {c:'SS-407-L',n:'Civics and Community Engagement Lab',ch:2,t:'Lab'},
+      {c:'MDE-408',n:'Internet of Things',ch:3,t:'Theory'},
+      {c:'HU-409',n:'Foreign Language',ch:2,t:'Theory'},
+      {c:'SE-XXX-C',n:'SE Elective IV',ch:3,t:'Theory'},
+    ],
+  }
+},
+'Telecommunication Engineering (BSc)':{
+  semesters:{
+    '1':[
+      {c:'HU-101',n:'Functional English',ch:3,t:'Theory'},
+      {c:'MA-103',n:'Calculus and Analytic Geometry',ch:3,t:'Theory'},
+      {c:'EE-104',n:'Circuit Analysis',ch:3,t:'Theory'},
+      {c:'EE-104-L',n:'Circuit Analysis Lab',ch:1,t:'Lab'},
+      {c:'MA-105',n:'Applied Physics',ch:3,t:'Theory'},
+      {c:'MA-105-L',n:'Applied Physics Lab',ch:1,t:'Lab'},
+      {c:'EE-106-L',n:'Electric Workshop Lab',ch:1,t:'Lab'},
+    ],
+    '2':[
+      {c:'HU-107',n:'Applications of ICT',ch:3,t:'Theory'},
+      {c:'CS-108',n:'Object Oriented Programming',ch:3,t:'Theory'},
+      {c:'CS-108-L',n:'Object Oriented Programming Lab',ch:1,t:'Lab'},
+      {c:'EE-109',n:'Electrical Network Analysis',ch:3,t:'Theory'},
+      {c:'EE-109-L',n:'Electrical Network Analysis Lab',ch:1,t:'Lab'},
+      {c:'MA-205',n:'Multivariable Calculus',ch:3,t:'Theory'},
+      {c:'IE-122-L',n:'Computer Aided Engineering Design Lab',ch:1,t:'Lab'},
+      {c:'HU-112',n:'Islamic Studies and Ethics',ch:2,t:'Theory'},
+    ],
+    '3':[
+      {c:'EE-203',n:'Electronic Devices and Circuits',ch:3,t:'Theory'},
+      {c:'EE-203-L',n:'Electronic Devices and Circuits Lab',ch:1,t:'Lab'},
+      {c:'MA-192',n:'Differential Equations',ch:3,t:'Theory'},
+      {c:'HU-205',n:'Ideology and Constitution of Pakistan',ch:2,t:'Theory'},
+      {c:'MDE-E1',n:'MDE Elective I',ch:2,t:'Theory'},
+      {c:'MDE-E1-L',n:'MDE Elective I Lab',ch:1,t:'Lab'},
+      {c:'HU-405',n:'Civics and Community Engagement',ch:2,t:'Theory'},
+      {c:'MA-206',n:'Linear Algebra',ch:3,t:'Theory'},
+      {c:'HS-111',n:'Occupational Health and Safety',ch:1,t:'Theory'},
+    ],
+    '4':[
+      {c:'TE-207',n:'Probability and Statistics',ch:3,t:'Theory'},
+      {c:'EE-208',n:'Amplifiers and Oscillators',ch:3,t:'Theory'},
+      {c:'EE-208-L',n:'Amplifiers and Oscillators Lab',ch:1,t:'Lab'},
+      {c:'EE-209',n:'Signals and Systems',ch:3,t:'Theory'},
+      {c:'EE-209-L',n:'Signals and Systems Lab',ch:1,t:'Lab'},
+      {c:'EE-210',n:'Digital Logic Design',ch:3,t:'Theory'},
+      {c:'EE-210-L',n:'Digital Logic Design Lab',ch:1,t:'Lab'},
+      {c:'HU-305',n:'Expository Writing',ch:3,t:'Theory'},
+    ],
+    '5':[
+      {c:'TE-301',n:'Electromagnetic Theory',ch:3,t:'Theory'},
+      {c:'TE-303',n:'Communication Systems',ch:3,t:'Theory'},
+      {c:'TE-303-L',n:'Communication Systems Lab',ch:1,t:'Lab'},
+      {c:'EE-302',n:'Control Systems',ch:2,t:'Theory'},
+      {c:'EE-302-L',n:'Control Systems Lab',ch:1,t:'Lab'},
+      {c:'CS-304',n:'Computer Communication Networks',ch:3,t:'Theory'},
+      {c:'CS-304-L',n:'Computer Communication Networks Lab',ch:1,t:'Lab'},
+      {c:'TE-309',n:'Microprocessors and Microcontrollers',ch:3,t:'Theory'},
+      {c:'TE-309-L',n:'Microprocessors and Microcontrollers Lab',ch:1,t:'Lab'},
+    ],
+    '6':[
+      {c:'TE-306',n:'Digital Communications',ch:3,t:'Theory'},
+      {c:'TE-306-L',n:'Digital Communications Lab',ch:1,t:'Lab'},
+      {c:'TE-307',n:'Antennas and Wave Propagation',ch:3,t:'Theory'},
+      {c:'TE-307-L',n:'Antennas and Wave Propagation Lab',ch:1,t:'Lab'},
+      {c:'TE-308',n:'Wireless and Mobile Communications',ch:3,t:'Theory'},
+      {c:'TE-304',n:'Digital Signal Processing',ch:3,t:'Theory'},
+      {c:'TE-304-L',n:'Digital Signal Processing Lab',ch:1,t:'Lab'},
+      {c:'MDE-II',n:'MDE Elective II',ch:3,t:'Theory'},
+    ],
+    '7':[
+      {c:'TE-401',n:'Microwave Engineering',ch:3,t:'Theory'},
+      {c:'TE-401-L',n:'Microwave Engineering Lab',ch:1,t:'Lab'},
+      {c:'TE-402',n:'Optical Fiber Communications',ch:3,t:'Theory'},
+      {c:'TE-402-L',n:'Optical Fiber Communications Lab',ch:1,t:'Lab'},
+      {c:'MBC-1',n:'MBC Depth Elective I',ch:3,t:'Theory'},
+      {c:'TE-403-L',n:'Final Year Design Project I Lab',ch:3,t:'Lab'},
+      {c:'MG-407',n:'Entrepreneurship',ch:2,t:'Theory'},
+    ],
+    '8':[
+      {c:'TE-405',n:'Transmission and Switching Systems',ch:3,t:'Theory'},
+      {c:'TE-405-L',n:'Transmission and Switching Systems Lab',ch:1,t:'Lab'},
+      {c:'TE-406-L',n:'Final Year Design Project II Lab',ch:3,t:'Lab'},
+      {c:'HU-404',n:'Project Management',ch:2,t:'Theory'},
+      {c:'SS-EL',n:'Social Science Elective',ch:2,t:'Theory'},
+      {c:'MBC-2',n:'MBC Depth Elective II',ch:3,t:'Theory'},
+      {c:'LANG',n:'Languages (Elective)',ch:2,t:'Theory'},
+    ],
+  }
+},
+'Computer Science (BSc)':{
+  semesters:{
+    '1':[
+      {c:'CS-101',n:'Introduction to ICT',ch:3,t:'Theory'},
+      {c:'CS-101-L',n:'Introduction to ICT Lab',ch:1,t:'Lab'},
+      {c:'CS-102',n:'Programming Fundamentals',ch:3,t:'Theory'},
+      {c:'CS-102-L',n:'Programming Fundamentals Lab',ch:1,t:'Lab'},
+      {c:'MT-101',n:'Calculus and Analytical Geometry',ch:3,t:'Theory'},
+      {c:'HU-101',n:'English Composition & Comprehension',ch:3,t:'Theory'},
+      {c:'NS-101',n:'Applied Physics',ch:3,t:'Theory'},
+    ],
+    '2':[
+      {c:'CS-103',n:'Object Oriented Programming',ch:3,t:'Theory'},
+      {c:'CS-103-L',n:'Object Oriented Programming Lab',ch:1,t:'Lab'},
+      {c:'CS-104',n:'Discrete Structure',ch:3,t:'Theory'},
+      {c:'HU-102',n:'Communication & Presentation Skills',ch:3,t:'Theory'},
+      {c:'MT-102',n:'Probability & Statistics',ch:3,t:'Theory'},
+      {c:'HU-103',n:'Pak Studies',ch:2,t:'Theory'},
+      {c:'HU-104',n:'Islamic Studies',ch:2,t:'Theory'},
+    ],
+    '3':[
+      {c:'CS-201',n:'Data Structures and Algorithms',ch:3,t:'Theory'},
+      {c:'CS-201-L',n:'Data Structures and Algorithms Lab',ch:1,t:'Lab'},
+      {c:'CS-202',n:'Digital Logic Design',ch:3,t:'Theory'},
+      {c:'CS-202-L',n:'Digital Logic Design Lab',ch:1,t:'Lab'},
+      {c:'HU-201',n:'Technical and Business Writing',ch:3,t:'Theory'},
+      {c:'MT-202',n:'Linear Algebra and Differential Equations',ch:3,t:'Theory'},
+      {c:'CS-203',n:'Operating Systems',ch:3,t:'Theory'},
+      {c:'CS-203-L',n:'Operating Systems Lab',ch:1,t:'Lab'},
+    ],
+    '4':[
+      {c:'CS-204',n:'Introduction to Software Engineering',ch:3,t:'Theory'},
+      {c:'CS-205',n:'Computer Organization and Architecture',ch:3,t:'Theory'},
+      {c:'CS-205-L',n:'Computer Organization and Architecture Lab',ch:1,t:'Lab'},
+      {c:'CS-207',n:'Introduction to Database Systems',ch:3,t:'Theory'},
+      {c:'CS-207-L',n:'Introduction to Database Systems Lab',ch:1,t:'Lab'},
+      {c:'MT-203',n:'Numerical Computing',ch:3,t:'Theory'},
+      {c:'UE-201',n:'University Elective-I',ch:3,t:'Theory'},
+    ],
+    '5':[
+      {c:'CS-301',n:'Theory of Programming Languages',ch:3,t:'Theory'},
+      {c:'CS-302',n:'Theory of Automata & Formal Languages',ch:3,t:'Theory'},
+      {c:'UE-301',n:'University Elective-II',ch:3,t:'Theory'},
+      {c:'MT-301',n:'Multi Variable Calculus',ch:3,t:'Theory'},
+      {c:'CS-305',n:'Parallel & Distributed Computing',ch:3,t:'Theory'},
+      {c:'CS-306',n:'Design and Analysis of Algorithms',ch:3,t:'Theory'},
+    ],
+    '6':[
+      {c:'CS-307',n:'CS Elective-I',ch:3,t:'Theory'},
+      {c:'CS-308',n:'CS Elective-II',ch:3,t:'Theory'},
+      {c:'UE-302',n:'University Elective-III',ch:3,t:'Theory'},
+      {c:'CS-309',n:'Computer Networks',ch:3,t:'Theory'},
+      {c:'CS-309-L',n:'Computer Networks Lab',ch:1,t:'Lab'},
+      {c:'CS-310',n:'CS Elective-III',ch:3,t:'Theory'},
+    ],
+    '7':[
+      {c:'CS-400-L',n:'Final Year Project-I Lab',ch:3,t:'Lab'},
+      {c:'CS-401',n:'CS Elective-IV',ch:3,t:'Theory'},
+      {c:'CS-402',n:'Compiler Construction',ch:3,t:'Theory'},
+      {c:'CS-403',n:'CS Elective-V',ch:3,t:'Theory'},
+      {c:'CS-404',n:'Artificial Intelligence',ch:3,t:'Theory'},
+      {c:'CS-405',n:'CS Elective-VI',ch:3,t:'Theory'},
+      {c:'CS-405-L',n:'CS Elective-VI Lab',ch:1,t:'Lab'},
+    ],
+    '8':[
+      {c:'CS-406-L',n:'Final Year Project-II Lab',ch:3,t:'Lab'},
+      {c:'HU-401',n:'Professional Practices',ch:3,t:'Theory'},
+      {c:'CS-408',n:'Information Security',ch:3,t:'Theory'},
+      {c:'UE-401',n:'University Elective-IV',ch:3,t:'Theory'},
+    ],
+  }
+},
+'Mathematics (BS)':{
+  semesters:{
+    '1':[
+      {c:'PS-111',n:'Ideology and Constitution of Pakistan',ch:2,t:'Theory'},
+      {c:'ENG-111',n:'Functional English',ch:3,t:'Theory'},
+      {c:'ICT-111',n:'Applications of ICT',ch:2,t:'Theory'},
+      {c:'ICT-111-L',n:'Applications of ICT Lab',ch:1,t:'Lab'},
+      {c:'MTH-111',n:'Calculus and Analytic Geometry',ch:3,t:'Theory'},
+      {c:'PHY-111',n:'Physics-I (Basic Mechanics)',ch:2,t:'Theory'},
+      {c:'PHY-111-L',n:'Physics-I (Basic Mechanics) Lab',ch:1,t:'Lab'},
+      {c:'MTH-112',n:'Foundation of Mathematics',ch:3,t:'Theory'},
+    ],
+    '2':[
+      {c:'ISL-121',n:'Islamic Studies / Ethics',ch:2,t:'Theory'},
+      {c:'PHY-121',n:'Physics-II (Electricity and Magnetism)',ch:3,t:'Theory'},
+      {c:'PHY-121-L',n:'Physics-II (Electricity and Magnetism) Lab',ch:1,t:'Lab'},
+      {c:'ENG-121',n:'Expository Writing',ch:3,t:'Theory'},
+      {c:'CP-107',n:'Programming Fundamentals',ch:3,t:'Theory'},
+      {c:'CP-107-L',n:'Programming Fundamentals Lab',ch:1,t:'Lab'},
+      {c:'MTH-121',n:'Linear Algebra-I',ch:3,t:'Theory'},
+    ],
+    '3':[
+      {c:'STA-211',n:'Probability & Statistics',ch:3,t:'Theory'},
+      {c:'PHY-211',n:'Physics-III (Heat and Thermodynamics)',ch:3,t:'Theory'},
+      {c:'PHY-211-L',n:'Physics-III (Heat and Thermodynamics) Lab',ch:1,t:'Lab'},
+      {c:'MTH-211',n:'Multivariable Calculus',ch:3,t:'Theory'},
+      {c:'QR-211',n:'Quantitative Reasoning-I',ch:3,t:'Theory'},
+      {c:'SOC-211',n:'Professional Ethics',ch:2,t:'Theory'},
+    ],
+    '4':[
+      {c:'MTH-221',n:'Vector and Tensor Analysis',ch:3,t:'Theory'},
+      {c:'MGT-221',n:'Entrepreneurship',ch:2,t:'Theory'},
+      {c:'SOC-221',n:'Civics and Community Engagement',ch:2,t:'Theory'},
+      {c:'MTH-222',n:'Differential Equations',ch:3,t:'Theory'},
+      {c:'QR-221',n:'Quantitative Reasoning-II',ch:3,t:'Theory'},
+      {c:'SOC-222',n:'Social Psychology',ch:2,t:'Theory'},
+    ],
+    '5':[
+      {c:'MTH-311',n:'Real Analysis-I',ch:3,t:'Theory'},
+      {c:'MTH-312',n:'Numerical Methods with Programming',ch:3,t:'Theory'},
+      {c:'MTH-312-L',n:'Numerical Methods with Programming Lab',ch:1,t:'Lab'},
+      {c:'MTH-313',n:'Group Theory',ch:3,t:'Theory'},
+      {c:'MTH-314',n:'Complex Analysis',ch:3,t:'Theory'},
+      {c:'MTH-315',n:'Metrics and Topology',ch:3,t:'Theory'},
+    ],
+    '6':[
+      {c:'MTH-321',n:'Mathematical Methods of Physics',ch:3,t:'Theory'},
+      {c:'MTH-322',n:'Differential Geometry',ch:3,t:'Theory'},
+      {c:'MTH-323',n:'Functional Analysis-I',ch:3,t:'Theory'},
+      {c:'MTH-324',n:'Discrete Mathematics',ch:3,t:'Theory'},
+      {c:'MTH-325',n:'Operations Research-I',ch:3,t:'Theory'},
+    ],
+    '7':[
+      {c:'MTH-411',n:'Abstract Algebra-I',ch:3,t:'Theory'},
+      {c:'MTH-412',n:'Introduction to Mathematical Modeling',ch:3,t:'Theory'},
+      {c:'MTH-XXX-A',n:'Distribution Course-I',ch:3,t:'Theory'},
+      {c:'MTH-XXX-B',n:'Distribution Course-II',ch:3,t:'Theory'},
+      {c:'MTH-400',n:'Field Experience/Internship',ch:3,t:'Theory'},
+    ],
+    '8':[
+      {c:'MTH-421',n:'Number Theory',ch:3,t:'Theory'},
+      {c:'MTH-422',n:'Numerical Linear Algebra',ch:3,t:'Theory'},
+      {c:'MTH-XXX-C',n:'Distribution Course-III',ch:3,t:'Theory'},
+      {c:'MTH-XXX-D',n:'Distribution Course-IV',ch:3,t:'Theory'},
+      {c:'MTH-410',n:'Capstone Project',ch:3,t:'Theory'},
+    ],
+  }
+},
+'Physics (BS)':{
+  semesters:{
+    '1':[
+      {c:'GE-111',n:'Ideology and Constitution of Pakistan',ch:2,t:'Theory'},
+      {c:'GE-112',n:'Functional English',ch:3,t:'Theory'},
+      {c:'GE-113',n:'Applied Chemistry',ch:2,t:'Theory'},
+      {c:'GE-113-L',n:'Applied Chemistry Lab',ch:1,t:'Lab'},
+      {c:'GE-114',n:'Application of ICT',ch:2,t:'Theory'},
+      {c:'GE-114-L',n:'Application of ICT Lab',ch:1,t:'Lab'},
+      {c:'MTH-111',n:'Calculus and Analytical Geometry',ch:3,t:'Theory'},
+      {c:'PHY-111',n:'Mechanics',ch:3,t:'Theory'},
+      {c:'PHY-111-L',n:'Mechanics Lab',ch:1,t:'Lab'},
+    ],
+    '2':[
+      {c:'GE-121',n:'Islamic Studies/Ethics',ch:2,t:'Theory'},
+      {c:'GE-122',n:'Expository Writing',ch:3,t:'Theory'},
+      {c:'GE-123',n:'Social Psychology',ch:2,t:'Theory'},
+      {c:'CP-107',n:'Computer Programming',ch:3,t:'Theory'},
+      {c:'CP-107-L',n:'Computer Programming Lab',ch:1,t:'Lab'},
+      {c:'MTH-121',n:'Linear Algebra',ch:3,t:'Theory'},
+      {c:'PHY-121',n:'Electricity and Magnetism',ch:3,t:'Theory'},
+      {c:'PHY-121-L',n:'Electricity and Magnetism Lab',ch:1,t:'Lab'},
+    ],
+    '3':[
+      {c:'GE-211',n:'Arts & Humanities (Professional Practices)',ch:2,t:'Theory'},
+      {c:'GE-212',n:'Civics and Community Engagement',ch:2,t:'Theory'},
+      {c:'GE-213',n:'Probability and Statistics (QR-1)',ch:3,t:'Theory'},
+      {c:'MTH-211',n:'Multivariable Calculus',ch:3,t:'Theory'},
+      {c:'PHY-211',n:'Heat and Thermodynamics',ch:3,t:'Theory'},
+      {c:'PHY-212',n:'Waves and Oscillations',ch:3,t:'Theory'},
+      {c:'PHY-212-L',n:'Waves and Oscillations Lab',ch:1,t:'Lab'},
+    ],
+    '4':[
+      {c:'GE-221',n:'Entrepreneurship',ch:2,t:'Theory'},
+      {c:'GE-222',n:'Data Science (QR-2)',ch:3,t:'Theory'},
+      {c:'MTH-221',n:'Differential Equations',ch:3,t:'Theory'},
+      {c:'PHY-221',n:'Modern Physics',ch:3,t:'Theory'},
+      {c:'PHY-222',n:'Optics',ch:3,t:'Theory'},
+      {c:'PHY-222-L',n:'Optics Lab',ch:2,t:'Lab'},
+    ],
+    '5':[
+      {c:'PHY-311',n:'Research Methodology',ch:3,t:'Theory'},
+      {c:'PHY-312',n:'Electrodynamics-I',ch:3,t:'Theory'},
+      {c:'PHY-313',n:'Classical Mechanics',ch:3,t:'Theory'},
+      {c:'PHY-314',n:'Mathematical Methods of Physics-I',ch:3,t:'Theory'},
+      {c:'PHY-315',n:'Electronics-I',ch:3,t:'Theory'},
+      {c:'PHY-315-L',n:'Electronics-I Lab',ch:2,t:'Lab'},
+    ],
+    '6':[
+      {c:'PHY-321',n:'Nuclear Physics',ch:3,t:'Theory'},
+      {c:'PHY-322',n:'Electrodynamics-II',ch:3,t:'Theory'},
+      {c:'PHY-323',n:'Quantum Mechanics-I',ch:3,t:'Theory'},
+      {c:'PHY-324',n:'Mathematical Methods of Physics-II',ch:3,t:'Theory'},
+      {c:'PHY-325',n:'Electronics-II',ch:3,t:'Theory'},
+      {c:'PHY-325-L',n:'Electronics-II Lab',ch:2,t:'Lab'},
+    ],
+    '7':[
+      {c:'PHY-411',n:'Statistical Physics',ch:3,t:'Theory'},
+      {c:'PHY-412',n:'Atomic and Molecular Physics',ch:3,t:'Theory'},
+      {c:'PHY-413',n:'Quantum Mechanics-II',ch:3,t:'Theory'},
+      {c:'PHY-414',n:'Solid State Physics-I',ch:3,t:'Theory'},
+      {c:'PHY-414-L',n:'Solid State Physics-I Lab',ch:2,t:'Lab'},
+      {c:'PHY-410',n:'Internship',ch:3,t:'Theory'},
+    ],
+    '8':[
+      {c:'PHY-421',n:'Solid State Physics-II',ch:3,t:'Theory'},
+      {c:'XXX-E1',n:'Elective-I',ch:3,t:'Theory'},
+      {c:'XXX-E2',n:'Elective-II',ch:3,t:'Theory'},
+      {c:'XXX-E3',n:'Elective-III',ch:3,t:'Theory'},
+      {c:'PHY-420',n:'FYP',ch:3,t:'Theory'},
+    ],
+  }
+},
+};
+
+/* ================================================================
+   STATE
+   ================================================================ */
+let subs=[];       // [{name,ch,grade}]
+let csems=[];      // [{label,sgpa,ch}]
+let activeTab='sgpa';
+
+/* ================================================================
+   HELPERS
+   ================================================================ */
+const $=id=>document.getElementById(id);
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function gp(label){const g=GRADES.find(x=>x.l===label);return g?g.p:0}
+function standing(v){
+  if(v>=3.50)return'Outstanding';if(v>=3.00)return'Very Good';
+  if(v>=2.50)return'Good';if(v>=2.00)return'Satisfactory';
+  if(v>0)return'On Probation';return'—';
+}
+function gradeOpts(sel){
+  return GRADES.map(g=>`<option value="${g.l}"${g.l===sel?' selected':''}>${g.l}</option>`).join('');
+}
+
+/* ================================================================
+   INIT
+   ================================================================ */
+function init(){
+  buildGradeRef();
+  buildDeptSel();
+  buildSemSel('Computer Engineering (BSc)');
+  loadDept('Computer Engineering (BSc)','1');
+
+  csems=[
+    {label:'Semester 1',sgpa:0,ch:0},
+    {label:'Semester 2',sgpa:0,ch:0}
+  ];
+  renderCGPA();
+  updateCGPA();
+
+  bindEvents();
+}
+
+/* ================================================================
+   BUILD UI
+   ================================================================ */
+function buildGradeRef(){
+  $('grBody').innerHTML='<div class="gg">'+GRADES.map(g=>`<div class="gc"><b>${g.l}</b>${g.p.toFixed(2)}</div>`).join('')+'</div>';
+}
+
+function buildDeptSel(){
+  const sel=$('dsel');
+  let h='<option value="">— Custom —</option>';
+  const names=Object.keys(DEPTS).sort();
+  names.forEach(d=>{h+=`<option value="${esc(d)}"${d==='Computer Engineering (BSc)'?' selected':''}>${esc(d)}</option>`});
+  sel.innerHTML=h;
+}
+
+function buildSemSel(dept){
+  const sel=$('ssel');
+  const d=DEPTS[dept];
+  if(!d){sel.innerHTML='<option value="1">Semester 1</option>';return}
+  const keys=Object.keys(d.semesters).sort((a,b)=>+a - +b);
+  sel.innerHTML=keys.map(k=>`<option value="${k}">Semester ${k}</option>`).join('');
+}
+
+/* ================================================================
+   LOAD SUBJECTS
+   ================================================================ */
+function loadDept(dept,sem){
+  subs=[];
+  const d=DEPTS[dept];
+  if(d&&d.semesters[sem]){
+    d.semesters[sem].forEach(s=>{
+      subs.push({code:s.c,name:s.n,ch:s.ch,grade:'A'});
+    });
+  }else{
+    for(let i=0;i<5;i++) subs.push({code:'',name:'',ch:3,grade:'A'});
+  }
+  renderSubs();
+  updateSGPA();
+}
+
+/* ================================================================
+   RENDER SUBJECTS
+   ================================================================ */
+function renderSubs(){
+  const ctr=$('sCtr');
+  ctr.innerHTML=subs.map((s,i)=>{
+    const cpv=(Math.max(0,s.ch||0)*gp(s.grade)).toFixed(1);
+    return`<div class="sr" data-i="${i}">
+      <span class="rn">${i+1}</span>
+      <input type="text" class="scode" value="${esc(s.code)}" placeholder="Code" aria-label="Course code">
+      <input type="text" class="sn" value="${esc(s.name)}" placeholder="Subject name" aria-label="Subject name">
+      <input type="number" class="sc" value="${s.ch}" min="0" step="1" placeholder="CH" aria-label="Credit hours">
+      <select class="sg" aria-label="Grade">${gradeOpts(s.grade)}</select>
+      <span class="cp">${cpv}</span>
+      <button class="bx" type="button" title="Remove subject" aria-label="Remove subject">×</button>
+    </div>`;
+  }).join('');
+  $('sCnt').textContent=subs.length+' subject'+(subs.length!==1?'s':'');
+}
+
+/* ================================================================
+   RENDER CGPA
+   ================================================================ */
+function renderCGPA(){
+  const ctr=$('cCtr');
+  ctr.innerHTML=csems.map((s,i)=>`<div class="cr" data-i="${i}">
+    <input type="text" class="cl" value="${esc(s.label)}" placeholder="Semester label" aria-label="Semester label">
+    <input type="number" class="cs" value="${s.sgpa||''}" min="0" max="4" step="0.01" placeholder="SGPA" aria-label="SGPA">
+    <input type="number" class="cc" value="${s.ch||''}" min="0" step="1" placeholder="Credit Hours" aria-label="Credit hours">
+    <button class="bx" type="button" title="Remove semester" aria-label="Remove semester">×</button>
+  </div>`).join('');
+  $('cCnt').textContent=csems.length+' semester'+(csems.length!==1?'s':'');
+}
+
+/* ================================================================
+   CALCULATE
+   ================================================================ */
+function calcSGPA(){
+  let tch=0,tqp=0;
+  subs.forEach(s=>{
+    const ch=Math.max(0,s.ch||0);
+    tch+=ch; tqp+=ch*gp(s.grade);
+  });
+  return{sgpa:tch>0?tqp/tch:0, totalCH:tch, totalQP:tqp, count:subs.length};
+}
+
+function calcCGPA(){
+  let tch=0,tqp=0;
+  csems.forEach(s=>{
+    const ch=Math.max(0,s.ch||0);
+    const sg=Math.min(4,Math.max(0,s.sgpa||0));
+    tch+=ch; tqp+=ch*sg;
+  });
+  return{cgpa:tch>0?tqp/tch:0, totalCH:tch, totalQP:tqp, count:csems.length};
+}
+
+function updateSGPA(){
+  const r=calcSGPA();
+  $('sgVal').textContent=r.sgpa.toFixed(2);
+  $('sgCH').textContent=r.totalCH;
+  $('sgQP').textContent=r.totalQP.toFixed(2);
+  $('sgN').textContent=r.count;
+  $('sgStd').textContent=standing(r.sgpa);
+  // Update per-row QP
+  const rows=$('sCtr').querySelectorAll('.sr');
+  rows.forEach((row,i)=>{
+    if(subs[i]){
+      const sp=row.querySelector('.cp');
+      if(sp) sp.textContent=(Math.max(0,subs[i].ch||0)*gp(subs[i].grade)).toFixed(1);
+    }
+  });
+}
+
+function updateCGPA(){
+  const r=calcCGPA();
+  $('cgVal').textContent=r.cgpa.toFixed(2);
+  $('cgCH').textContent=r.totalCH;
+  $('cgQP').textContent=r.totalQP.toFixed(2);
+  $('cgN').textContent=r.count;
+  $('cgStd').textContent=standing(r.cgpa);
+}
+
+/* ================================================================
+   EVENTS
+   ================================================================ */
+function bindEvents(){
+  // Tabs
+  document.querySelectorAll('.tb').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      activeTab=btn.dataset.tab;
+      document.querySelectorAll('.tb').forEach(b=>{b.classList.remove('on');b.setAttribute('aria-selected','false')});
+      btn.classList.add('on');btn.setAttribute('aria-selected','true');
+      document.querySelectorAll('.pnl').forEach(p=>p.classList.remove('on'));
+      $(activeTab+'-pnl').classList.add('on');
+    });
+  });
+
+  // Dept
+  $('dsel').addEventListener('change',e=>{
+    const d=e.target.value;
+    buildSemSel(d);
+    loadDept(d,$('ssel').value);
+  });
+
+  // Semester
+  $('ssel').addEventListener('change',e=>{
+    loadDept($('dsel').value,e.target.value);
+  });
+
+  // Grade ref toggle
+  $('grToggle').addEventListener('click',()=>{
+    const open=$('grBody').classList.toggle('op');
+    $('grArrow').classList.toggle('op');
+    $('grToggle').setAttribute('aria-expanded',open);
+  });
+
+  // Add subject – open modal
+  $('bAddS').addEventListener('click',openAddModal);
+
+  // Modal close
+  $('modalClose').addEventListener('click',closeAddModal);
+  $('modalDone').addEventListener('click',closeAddModal);
+  $('addSubModal').addEventListener('click',e=>{if(e.target===$('addSubModal'))closeAddModal();});
+
+  // Search
+  $('subSearch').addEventListener('input',renderSubList);
+
+  // Subject container delegation
+  $('sCtr').addEventListener('input',e=>{
+    const row=e.target.closest('.sr');if(!row)return;
+    const i=+row.dataset.i;
+    if(e.target.classList.contains('scode')) subs[i].code=e.target.value;
+    else if(e.target.classList.contains('sn')) subs[i].name=e.target.value;
+    else if(e.target.classList.contains('sc')) subs[i].ch=parseFloat(e.target.value)||0;
+    updateSGPA();
+  });
+  $('sCtr').addEventListener('change',e=>{
+    const row=e.target.closest('.sr');if(!row)return;
+    const i=+row.dataset.i;
+    if(e.target.classList.contains('sg')){subs[i].grade=e.target.value;updateSGPA();}
+  });
+  $('sCtr').addEventListener('click',e=>{
+    const btn=e.target.closest('.bx');if(!btn)return;
+    const row=btn.closest('.sr');
+    const i=+row.dataset.i;
+    subs.splice(i,1);renderSubs();updateSGPA();
+  });
+
+  // Add CGPA semester
+  $('bAddC').addEventListener('click',()=>{
+    csems.push({label:'Semester '+(csems.length+1),sgpa:0,ch:0});
+    renderCGPA();updateCGPA();
+    const last=$('cCtr').lastElementChild;
+    if(last) last.querySelector('.cl').focus();
+  });
+
+  // CGPA container delegation
+  $('cCtr').addEventListener('input',e=>{
+    const row=e.target.closest('.cr');if(!row)return;
+    const i=+row.dataset.i;
+    if(e.target.classList.contains('cl')) csems[i].label=e.target.value;
+    else if(e.target.classList.contains('cs')) csems[i].sgpa=parseFloat(e.target.value)||0;
+    else if(e.target.classList.contains('cc')) csems[i].ch=parseFloat(e.target.value)||0;
+    updateCGPA();
+  });
+  $('cCtr').addEventListener('click',e=>{
+    const btn=e.target.closest('.bx');if(!btn)return;
+    const row=btn.closest('.cr');
+    const i=+row.dataset.i;
+    csems.splice(i,1);renderCGPA();updateCGPA();
+  });
+
+  // Export
+  $('bPNG').addEventListener('click',exportPNG);
+  $('bPDF').addEventListener('click',()=>window.print());
+}
+
+/* ================================================================
+   EXPORT PNG (Canvas)
+   ================================================================ */
+function rRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+
+function exportPNG(){
+  const isSGPA=activeTab==='sgpa';
+  const dpr=2;
+  const W=720;
+  const pad=32;
+  const headerH=72;
+  const tblHdrH=28;
+  const rowH=26;
+  const rows=isSGPA?subs:csems;
+  const tblH=tblHdrH+rows.length*rowH;
+  const resH=96;
+  const H=pad+headerH+18+tblH+22+resH+pad;
+
+  const c=document.createElement('canvas');
+  c.width=W*dpr;c.height=H*dpr;
+  const x=c.getContext('2d');
+  x.scale(dpr,dpr);
+
+  const ff="'Inter',system-ui,sans-serif";
+
+  // BG
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);
+
+  // Header
+  x.fillStyle='#003366';x.fillRect(0,0,W,headerH);
+  x.fillStyle='#fff';x.font=`800 18px ${ff}`;
+  x.fillText('UET Taxila — GPA Calculator',pad,30);
+  x.font=`500 12px ${ff}`;x.fillStyle='rgba(255,255,255,.7)';
+  const dName=$('dsel').value||'Custom';
+  const sNum=$('ssel').value||'—';
+  const dt=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  x.fillText((isSGPA?`${dName} · Semester ${sNum}`:'Cumulative GPA')+` · ${dt}`,pad,52);
+
+  let y=headerH+22;
+
+  // Table header
+  x.fillStyle='#f3f4f6';x.fillRect(pad,y,W-pad*2,tblHdrH);
+  x.fillStyle='#6b7280';x.font=`700 9px ${ff}`;
+
+  if(isSGPA){
+    x.fillText('#',pad+6,y+18);x.fillText('SUBJECT',pad+28,y+18);
+    x.fillText('CH',pad+390,y+18);x.fillText('GRADE',pad+440,y+18);x.fillText('QP',pad+530,y+18);
+  }else{
+    x.fillText('SEMESTER',pad+6,y+18);x.fillText('SGPA',pad+320,y+18);
+    x.fillText('CREDIT HOURS',pad+400,y+18);x.fillText('QUALITY POINTS',pad+520,y+18);
+  }
+  y+=tblHdrH;
+
+  // Rows
+  x.font=`500 11px ${ff}`;
+  rows.forEach((r,i)=>{
+    if(i%2===0){x.fillStyle='#fafbfc';x.fillRect(pad,y,W-pad*2,rowH)}
+    x.fillStyle='#111827';
+    if(isSGPA){
+      x.fillText(i+1,pad+8,y+17);
+      let nm=(r.code?r.code+' — ':'')+( r.name||'—');if(nm.length>48)nm=nm.slice(0,45)+'…';
+      x.fillText(nm,pad+28,y+17);
+      x.fillText(String(r.ch),pad+395,y+17);
+      x.fillText(r.grade,pad+445,y+17);
+      x.fillText((Math.max(0,r.ch||0)*gp(r.grade)).toFixed(2),pad+530,y+17);
+    }else{
+      x.fillText(r.label||`Semester ${i+1}`,pad+6,y+17);
+      x.fillText((r.sgpa||0).toFixed(2),pad+325,y+17);
+      x.fillText(String(r.ch||0),pad+425,y+17);
+      x.fillText(((r.sgpa||0)*(r.ch||0)).toFixed(2),pad+540,y+17);
+    }
+    y+=rowH;
+  });
+
+  y+=16;
+
+  // Result bar
+  const rw=W-pad*2;
+  x.fillStyle='#003366';rRect(x,pad,y,rw,resH,10);x.fill();
+  x.fillStyle='rgba(255,255,255,.7)';x.font=`700 10px ${ff}`;
+  x.fillText(isSGPA?'SEMESTER GPA':'CUMULATIVE GPA',pad+16,y+20);
+
+  const calc=isSGPA?calcSGPA():calcCGPA();
+  const gVal=isSGPA?calc.sgpa:calc.cgpa;
+
+  x.fillStyle='#fff';x.font=`800 32px ${ff}`;
+  x.fillText(gVal.toFixed(2),pad+16,y+58);
+
+  x.font=`600 11px ${ff}`;x.fillStyle='rgba(255,255,255,.85)';
+  x.fillText(standing(gVal),pad+16,y+78);
+
+  x.font=`500 11px ${ff}`;x.fillStyle='rgba(255,255,255,.75)';
+  x.fillText(`Total CH: ${calc.totalCH}    |    Total QP: ${calc.totalQP.toFixed(2)}`,pad+260,y+50);
+
+  // Download
+  const a=document.createElement('a');
+  a.download='UET-Taxila-GPA-Result.png';
+  a.href=c.toDataURL('image/png');
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+
+/* ================================================================
+   ADD SUBJECT MODAL
+   ================================================================ */
+function buildAllSubjects(){
+  // Returns flat list of all subjects across all depts/semesters
+  const all=[];
+  Object.entries(DEPTS).forEach(([dept,data])=>{
+    Object.entries(data.semesters).forEach(([sem,courses])=>{
+      courses.forEach(c=>{
+        all.push({code:c.c,name:c.n,ch:c.ch,dept,sem:'Sem '+sem});
+      });
+    });
+  });
+  return all;
+}
+
+function openAddModal(){
+  $('addSubModal').classList.remove('hidden');
+  $('subSearch').value='';
+  renderSubList();
+  setTimeout(()=>$('subSearch').focus(),50);
+  document.body.style.overflow='hidden';
+}
+
+function closeAddModal(){
+  $('addSubModal').classList.add('hidden');
+  document.body.style.overflow='';
+}
+
+function renderSubList(){
+  const q=$('subSearch').value.trim().toLowerCase();
+  const all=buildAllSubjects();
+  const filtered=q?all.filter(s=>
+    s.code.toLowerCase().includes(q)||
+    s.name.toLowerCase().includes(q)||
+    s.dept.toLowerCase().includes(q)||
+    s.sem.toLowerCase().includes(q)
+  ):all;
+
+  if(!filtered.length){
+    $('subList').innerHTML='<div class="modal-empty">No subjects found matching "<b>'+esc($('subSearch').value)+'</b>"</div>';
+    return;
+  }
+
+  // Group by dept if no search, else show flat
+  if(!q){
+    // Group by dept
+    const byDept={};
+    filtered.forEach(s=>{
+      if(!byDept[s.dept])byDept[s.dept]=[];
+      byDept[s.dept].push(s);
+    });
+    $('subList').innerHTML=Object.entries(byDept).map(([dept,courses])=>`
+      <div class="subgrp">
+        <span class="subgrp-label">${esc(dept)}</span>
+        ${courses.map(s=>subItemHTML(s)).join('')}
+      </div>
+    `).join('');
+  }else{
+    $('subList').innerHTML=`<div class="subgrp">${filtered.map(s=>subItemHTML(s)).join('')}</div>`;
+  }
+
+  // Bind add buttons
+  $('subList').querySelectorAll('.si-add').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const code=btn.dataset.code;
+      const name=btn.dataset.name;
+      const ch=+btn.dataset.ch;
+      subs.push({code:code,name:name,ch,grade:'A'});
+      renderSubs();updateSGPA();
+      // Flash the button
+      btn.textContent='✓';
+      btn.style.background='var(--grn)';
+      setTimeout(()=>{btn.textContent='+';btn.style.background='';},900);
+    });
+  });
+}
+
+function subItemHTML(s){
+  return`<div class="sub-item">
+    <span class="si-code">${esc(s.code)}</span>
+    <span class="si-name">${esc(s.name)}<br><small style="color:var(--tx2);font-size:10px">${esc(s.dept)} · ${esc(s.sem)}</small></span>
+    <span class="si-ch">${s.ch} CH</span>
+    <button class="si-add" data-code="${esc(s.code)}" data-name="${esc(s.name)}" data-ch="${s.ch}" title="Add subject">+</button>
+  </div>`;
+}
+
+/* ================================================================
+   START
+   ================================================================ */
+document.addEventListener('DOMContentLoaded',init);
+</script>
+
+
+                <script></script>
+            
+        
+    </body>
